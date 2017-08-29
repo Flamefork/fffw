@@ -22,19 +22,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define VERSION_STRING "FFFW 0.02"
+
 //define default midi channel
 #define MIDI_CHANNEL 0
 
 //define AxeFx model. See list of models in axefx.h enum AxeFxModelId
 #define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
 
+//define default midi channel
+#define PRESET_BANK 3
+
 //Assume we want to make 6 button in bottom row as preset change buttons(from button 1 to button 6)
 //And button from 7 to button 12 is stompbox controllers
 //Define preset numbers for  button 1 - 6. Any value you want ;)
-const char presetNumbers[5] = {18, 19, 20, 21, 22};
+const char presetNumbers[5] = {17, 18, 19, 20, 21};
 
 #define	PRESET_NAME_MAX_SIZE 16 //as we have 16-chars dispay, set 16 as max preset name length
-const char presetNameToPrint[PRESET_NAME_MAX_SIZE] = "FFFW 0.01";//String for peint preset name. Default - "Name not found"
+const char presetNameToPrint[PRESET_NAME_MAX_SIZE] = VERSION_STRING;//String for peint preset name. Default - "Name not found"
 
 //last active preset button number
 uint8_t presetButtonNumber = 0;
@@ -46,7 +51,6 @@ uint8_t presetButtonNumber = 0;
 #define CC_CHORUS       41
 #define CC_DRIVE	    49
 #define CC_COMP			43
-#define CC_FLANGER	    00
 
 uint8_t stompCCNumbers[5] = {CC_DELAY, CC_REVERB, CC_CHORUS, CC_DRIVE, CC_COMP};
 
@@ -96,7 +100,10 @@ void processPresetSwitching(uint8_t buttonNum)
 	//Update last active preset button number
 	presetButtonNumber = buttonNum;
 
-	//Send Program change midi message. It is usually used for preset switching
+    //Send bank change midi message.
+	midiSendControlChange(0, PRESET_BANK, MIDI_CHANNEL);
+
+    //Send Program change midi message. It is usually used for preset switching
 	midiSendProgramChange(presetNumbers[presetButtonNumber], MIDI_CHANNEL);
 
 	//To get all LED in valid state we should send request for IA states in new preset
