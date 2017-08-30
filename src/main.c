@@ -28,10 +28,18 @@
 //Assume we want to make 6 button in bottom row as preset change buttons(from button 1 to button 6)
 //And button from 7 to button 12 is stompbox controllers
 //Define preset numbers for  button 1 - 6. Any value you want ;)
-uint8_t presetNumbers[5] = {17, 18, 19, 20, 21};
+uint8_t presetNumbers[5] = {
+    17,
+    18,
+    19,
+    20,
+    21
+};
 
-#define PRESET_NAME_MAX_SIZE 16 //as we have 16-chars dispay, set 16 as max preset name length
-const char presetNameToPrint[PRESET_NAME_MAX_SIZE] = VERSION_STRING;//String for peint preset name. Default - "Name not found"
+//as we have 16-chars display, set 16 as max preset name length
+#define PRESET_NAME_MAX_SIZE 16
+//String for paint preset name. Default - "Name not found"
+const char presetNameToPrint[PRESET_NAME_MAX_SIZE] = VERSION_STRING;
 
 //last active preset button number
 uint8_t presetButtonNumber = 0;
@@ -47,7 +55,13 @@ uint8_t sceneButtonNumber = 0;
 #define CC_DRIVE    49
 #define CC_COMP     43
 
-uint8_t stompCCNumbers[5] = {CC_DELAY, CC_REVERB, CC_CHORUS, CC_DRIVE, CC_COMP};
+uint8_t stompCCNumbers[5] = {
+    CC_DELAY,
+    CC_REVERB,
+    CC_CHORUS,
+    CC_DRIVE,
+    CC_COMP
+};
 
 //Actual value will send to midi.
 //Usually values 0..63 - bypass, value 64-127 - active effect
@@ -56,12 +70,23 @@ uint8_t stompCCNumbers[5] = {CC_DELAY, CC_REVERB, CC_CHORUS, CC_DRIVE, CC_COMP};
 #define STOMP_ON    0x7F
 #define STOMP_ON_MIN_VAL    0x40//if value higher or equal this value, we assume effect is enable
 
-uint8_t stompActualValue[5] = {STOMP_OFF, STOMP_OFF, STOMP_OFF, STOMP_OFF, STOMP_OFF};
+uint8_t stompActualValue[5] = {
+    STOMP_OFF,
+    STOMP_OFF,
+    STOMP_OFF,
+    STOMP_OFF,
+    STOMP_OFF
+};
 
 #define CC_SCENE    34
 
-uint8_t sceneNumbers[5] = {0, 1, 2, 3, 4};
-
+uint8_t sceneNumbers[5] = {
+    0,
+    1,
+    2,
+    3,
+    4
+};
 
 void updateLeds() {
   //first clear all LEDS.
@@ -71,12 +96,12 @@ void updateLeds() {
   //parameter "send" of lEDs function is response for this
   ledSetColorAll(COLOR_BLACK, false);
 
-//  //Green led show stompbox state
-//  for (uint8_t i = 0; i < sizeof(stompCCNumbers); ++i) {
-//    if (stompActualValue[i] >= STOMP_ON_MIN_VAL) {
-//      ledSetColor(i + 5, COLOR_GREEN, false);//Active stomp is green led. Stomps leds numbers starts from 6
-//    }
-//  }
+  //  //Green led show stompbox state
+  //  for (uint8_t i = 0; i < sizeof(stompCCNumbers); ++i) {
+  //    if (stompActualValue[i] >= STOMP_ON_MIN_VAL) {
+  //      ledSetColor(i + 5, COLOR_GREEN, false);//Active stomp is green led. Stomps leds numbers starts from 6
+  //    }
+  //  }
 
   //Active scene is green led
   ledSetColor(sceneButtonNumber + 5, COLOR_GREEN, true);//now all changes done and we can send prepared data to leds
@@ -110,8 +135,8 @@ void processPresetSwitching(uint8_t buttonNum) {
   midiSendProgramChange(presetNumbers[presetButtonNumber], MIDI_CHANNEL);
 
   //To get all LED in valid state we should send request for IA states in new preset
-  //AXEFX_GET_PRESET_EFFECT_BLOCKS_AND_CC_AND_BYPASS_STATE have no additional payload, so parameter 3 is NULL
-  axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_EFFECT_BLOCKS_AND_CC_AND_BYPASS_STATE, NULL, 0);
+  //AXEFX_GET_PRESET_BLOCKS_FLAGS have no additional payload, so parameter 3 is NULL
+  axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
 
   //Update LEDs according new state of preset
   updateLeds();
@@ -155,7 +180,7 @@ void processButtonEvent(ButtonEvent buttonEvent) {
     //Stomps switching performed only on button 7 - button 12.
     //Button 13-18 is configuration keyboard buttons, must be filtered out
     //Also response only on BUTTON_PUSH event.
-//    processStompboxSwitching(buttonEvent.buttonNum_ - 5);
+    //    processStompboxSwitching(buttonEvent.buttonNum_ - 5);
     processSceneSwitching(buttonEvent.buttonNum_ - 5);
   }
 }
@@ -202,7 +227,7 @@ void sysExCallback(uint16_t length) {
   AxeFxFunctionId function = axeFxGetFunctionId(sysexData);
 
   switch (function) {
-    case AXEFX_GET_PRESET_EFFECT_BLOCKS_AND_CC_AND_BYPASS_STATE:
+    case AXEFX_GET_PRESET_BLOCKS_FLAGS:
       parseIaStates(sysexData);//parse IA state and set internal states
       axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);//now we can send new preset name request
       updateLeds();//update LEDs with actual IA states

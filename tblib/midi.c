@@ -1,8 +1,8 @@
 /*
  * BJ Devices Travel Box series midi controller library
  * @file	midi.c
- * 
- * @brief	Send and receive midi messages				
+ *
+ * @brief	Send and receive midi messages
  *
  * Software is provided "as is" without express or implied warranty.
  * BJ Devices 2016
@@ -17,7 +17,7 @@ static uint8_t midiBuffer[MIDI_BUFFER_SIZE];
 
 void initMidi()
 {
-	initUart0AsMidi();	
+	initUart0AsMidi();
 }
 
 void midiSendProgramChange(uint8_t progNum, uint8_t chanNum)
@@ -36,27 +36,27 @@ void midiSendControlChange(uint8_t ctrlNum, uint8_t val, uint8_t chanNum)
 void midiSendSysEx(uint16_t length, uint8_t* data)
 {
 	uint32_t i;
-	
+
 	uart0PutChar(SYSEX_STATUS);
-	
+
 	for (i = 0; i < length; ++i)
 	{
-		uart0PutChar(*(data + i));	
+		uart0PutChar(*(data + i));
 	}
-	
+
 	uart0PutChar(0xF7);
 }
 
 void midiSendSysExManfId(uint32_t manfId, uint16_t length, uint8_t* data)
 {
 	uint32_t i;
-	
+
 	uart0PutChar(SYSEX_STATUS);
-	
+
 	uart0PutChar((manfId >> 16) & 0x7F);
 	uart0PutChar((manfId >> 8) & 0x7F);
 	uart0PutChar(manfId & 0x7F);
-	
+
 	for (i = 0; i < length; ++i)
 	{
 		uart0PutChar(*(data + i));
@@ -71,15 +71,15 @@ uint8_t getMessageLength(uint8_t messageType)
 		case PC_STATUS :
 			return 2;
 		break;
-		
+
 		case CC_STATUS :
 			return 3;
 		break;
-		
+
 		case ACTIVE_SENSE :
 			return 1;
 		break;
-		
+
 		default:
 			return 0;//return 0 if length is unknown
 		break;
@@ -90,13 +90,13 @@ static uint16_t midiInRxCnt = 0;
 static uint8_t lastStatus = UNKNOWN_STATUS;
 static uint16_t lastSysExLength = 0;
 
-bool parce(uint8_t data)
+bool parse(uint8_t data)
 {
 	if(midiInRxCnt == 0)
 	{
 		if(!(data & 0x80))
 			return false;//TODO add running status support here
-		
+
 		uint8_t statusWoChannel = (data < 0xF0) ? (data & 0xF0) : data;//Save all byte in case of realtime message
 		switch (statusWoChannel)
 		{
@@ -113,7 +113,7 @@ bool parce(uint8_t data)
 				lastStatus = data;
 				return true;
 			break;
-			
+
 			default:
 				lastStatus = UNKNOWN_STATUS;
 				return false;
@@ -129,7 +129,7 @@ bool parce(uint8_t data)
 			lastStatus = UNKNOWN_STATUS;
 			return false;
 		}
-		
+
 		switch (lastStatus)
 		{
 			case PC_STATUS :
@@ -142,7 +142,7 @@ bool parce(uint8_t data)
 					return true;
 				}
 			break;
-			
+
 			case SYSEX_STATUS :
 				midiBuffer[midiInRxCnt++] = data;
 				if(data == SYSEX_END)//End of sys ex
@@ -167,17 +167,17 @@ static void (*pcCallback)(uint8_t, uint8_t);
 static void (*sysExCallback)(uint16_t);
 static void (*activeSenseCallback)(void);
 
-void runCallbacks() 
+void runCallbacks()
 {
 	if(ccCallback && lastStatus == CC_STATUS)
 		(*ccCallback)(midiGetChannelNumber(), midiGetControllerNumber(), midiGetControllerValue());
-		
+
 	if(pcCallback && lastStatus == PC_STATUS)
 		(*pcCallback)(midiGetChannelNumber(), midiGetProgramNumber());
-		
+
 	if(sysExCallback && lastStatus == SYSEX_STATUS)
 		(*sysExCallback)(lastSysExLength);
-		
+
 	if(activeSenseCallback && lastStatus == ACTIVE_SENSE)
 		(*activeSenseCallback)();
 }
@@ -186,7 +186,7 @@ bool midiRead()
 {
 	while(!uart0IsBufferEmpty())
 	{
-		if(parce(uart0GetChar()))
+		if(parse(uart0GetChar()))
 		{
 			runCallbacks();
 			return true;
@@ -219,7 +219,7 @@ void midiRegisterActiveSenseCallback(void (*callback)(void))
 uint8_t midiGetChannelNumber()
 {
 	return (midiBuffer[0] & 0x0F);
-} 
+}
 
 uint8_t midiGetProgramNumber()
 {
@@ -239,10 +239,10 @@ uint8_t midiGetControllerValue()
 uint16_t midiGetSysExLength(uint8_t* sysEx)
 {
 	uint16_t length = 0;
-	
+
 	while(*(sysEx + length) != SYSEX_END)
 		++length;
-		
+
 	return length;
 }
 
@@ -264,6 +264,6 @@ uint8_t midiGetMessageType()
 uint32_t midiGetSysExManufacturerId(uint8_t* sysEx)
 {
 	uint32_t ret = 0;
-	ret = ((uint32_t)sysEx[1] << 16) | ((uint32_t)sysEx[2] << 8) | sysEx[3]; 
+	ret = ((uint32_t)sysEx[1] << 16) | ((uint32_t)sysEx[2] << 8) | sysEx[3];
 	return ret;
 }
