@@ -14,7 +14,7 @@
 
 #include <string.h>
 
-#define VERSION_STRING "FFFW 0.03"
+#define VERSION_STRING "FFFW 0.04"
 
 //define default midi channel
 #define MIDI_CHANNEL 0
@@ -36,6 +36,9 @@ const char presetNameToPrint[PRESET_NAME_MAX_SIZE] = VERSION_STRING;//String for
 //last active preset button number
 uint8_t presetButtonNumber = 0;
 
+//last active scene number
+uint8_t sceneButtonNumber = 0;
+
 //Define CC number for stompboxes
 //CC numbers for dedicated IA. Numbers may differ, check settings!
 #define CC_DELAY    47
@@ -55,8 +58,12 @@ uint8_t stompCCNumbers[5] = {CC_DELAY, CC_REVERB, CC_CHORUS, CC_DRIVE, CC_COMP};
 
 uint8_t stompActualValue[5] = {STOMP_OFF, STOMP_OFF, STOMP_OFF, STOMP_OFF, STOMP_OFF};
 
+#define CC_SCENE    34
+
+uint8_t sceneNumbers[5] = {0, 1, 2, 3, 4};
+
+
 void updateLeds() {
-  uint8_t i;
   //first clear all LEDS.
   //It is recommend to send data to leds
   //only after all changes will be done
@@ -64,12 +71,15 @@ void updateLeds() {
   //parameter "send" of lEDs function is response for this
   ledSetColorAll(COLOR_BLACK, false);
 
-  //Green led show stompbox state
-  for (i = 0; i < sizeof(stompCCNumbers); ++i) {
-    if (stompActualValue[i] >= STOMP_ON_MIN_VAL) {
-      ledSetColor(i + 5, COLOR_GREEN, false);//Active stomp is green led. Stomps leds numbers starts from 6
-    }
-  }
+//  //Green led show stompbox state
+//  for (uint8_t i = 0; i < sizeof(stompCCNumbers); ++i) {
+//    if (stompActualValue[i] >= STOMP_ON_MIN_VAL) {
+//      ledSetColor(i + 5, COLOR_GREEN, false);//Active stomp is green led. Stomps leds numbers starts from 6
+//    }
+//  }
+
+  //Active scene is green led
+  ledSetColor(sceneButtonNumber + 5, COLOR_GREEN, true);//now all changes done and we can send prepared data to leds
 
   //Active preset is red led
   ledSetColor(presetButtonNumber, COLOR_RED, true);//now all changes done and we can send prepared data to leds
@@ -89,6 +99,9 @@ void updateScreen() {
 void processPresetSwitching(uint8_t buttonNum) {
   //Update last active preset button number
   presetButtonNumber = buttonNum;
+
+  //Reset scene button number
+  sceneButtonNumber = 0;
 
   //Send bank change midi message.
   midiSendControlChange(0, PRESET_BANK, MIDI_CHANNEL);
@@ -122,6 +135,17 @@ void processStompboxSwitching(uint8_t buttonNum) {
   updateLeds();
 }
 
+void processSceneSwitching(uint8_t buttonNum) {
+  //Update last active preset button number
+  sceneButtonNumber = buttonNum;
+
+  //Send Control change midi message. It is usually used for fxs switching
+  midiSendControlChange(CC_SCENE, sceneNumbers[buttonNum], MIDI_CHANNEL);
+
+  //Update LEDs according new state of preset
+  updateLeds();
+}
+
 //buttons process function example
 void processButtonEvent(ButtonEvent buttonEvent) {
   //Preset switching performed only on button 1 - button 6 and only on BUTTON_PUSH event.
@@ -131,7 +155,8 @@ void processButtonEvent(ButtonEvent buttonEvent) {
     //Stomps switching performed only on button 7 - button 12.
     //Button 13-18 is configuration keyboard buttons, must be filtered out
     //Also response only on BUTTON_PUSH event.
-    processStompboxSwitching(buttonEvent.buttonNum_ - 5);
+//    processStompboxSwitching(buttonEvent.buttonNum_ - 5);
+    processSceneSwitching(buttonEvent.buttonNum_ - 5);
   }
 }
 
