@@ -1,225 +1,153 @@
-/*
- * BJ Devices Travel Box series midi controller library
- * @file	TravelBoxAxeFxExample.c
- *
- * @brief	AxeFx example. Reading IA state and preset names from AxeFx
- *
- * Software is provided "as is" without express or implied warranty.
- * BJ Devices 2016
- */
-
 #include "bjdevlib_tb.h"
 #include "axefx.h"
 #include "lcd_tb.h"
 
 #include <string.h>
 
-#define VERSION_STRING "FFFW 0.04"
+#include "axe_default_cc.h"
 
-//define default midi channel
-#define MIDI_CHANNEL 0
+#define VERSION_STRING "Version 0.05"
 
-//define AxeFx model. See list of models in axefx.h enum AxeFxModelId
+// TB hardware consts
+#define TB_LCD_WIDTH 16
+
+// Axe-Fx specific config
 #define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
+#define MY_AXEFX_MIDI_CHANNEL 0
+#define MY_AXEFX_PRESET_BANK 3
 
-//define default midi channel
-#define PRESET_BANK 3
+#define CC_MIN_VALUE 0x00
+#define CC_MAX_VALUE 0x7F
 
-//Assume we want to make 6 button in bottom row as preset change buttons(from button 1 to button 6)
-//And button from 7 to button 12 is stompbox controllers
-//Define preset numbers for  button 1 - 6. Any value you want ;)
-uint8_t presetNumbers[5] = {
-    17,
-    18,
-    19,
-    20,
-    21
+// Types
+
+typedef enum ButtonType {
+  BUTTON_NONE,
+  BUTTON_PRESET,
+  BUTTON_SCENE,
+  BUTTON_IA
+} ButtonType;
+
+typedef struct Button {
+  ButtonType type;
+  uint8_t value;
+  LedColor color;
+  bool active;
+} Button;
+
+// Variables
+
+const char currentPresetName[TB_LCD_WIDTH] = VERSION_STRING;
+
+Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .value=17},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=18},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=19},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=20},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=21},
+                                    {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=0},
+                                    {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=1},
+                                    {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=2},
+                                    {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=3},
+                                    {.type=BUTTON_IA, .color=COLOR_GREEN, .value=CC_DRIVE_1_BYPASS},
+                                    {.type=BUTTON_NONE, .color=COLOR_BLACK},
 };
 
-//as we have 16-chars display, set 16 as max preset name length
-#define PRESET_NAME_MAX_SIZE 16
-//String for paint preset name. Default - "Name not found"
-const char presetNameToPrint[PRESET_NAME_MAX_SIZE] = VERSION_STRING;
+// Indication
 
-//last active preset button number
-uint8_t presetButtonNumber = 0;
-
-//last active scene number
-uint8_t sceneButtonNumber = 0;
-
-//Define CC number for stompboxes
-//CC numbers for dedicated IA. Numbers may differ, check settings!
-#define CC_DELAY    47
-#define CC_REVERB   83
-#define CC_CHORUS   41
-#define CC_DRIVE    49
-#define CC_COMP     43
-
-uint8_t stompCCNumbers[5] = {
-    CC_DELAY,
-    CC_REVERB,
-    CC_CHORUS,
-    CC_DRIVE,
-    CC_COMP
-};
-
-//Actual value will send to midi.
-//Usually values 0..63 - bypass, value 64-127 - active effect
-//All stompboxes bypass by default
-#define STOMP_OFF    0x00
-#define STOMP_ON    0x7F
-#define STOMP_ON_MIN_VAL    0x40//if value higher or equal this value, we assume effect is enable
-
-uint8_t stompActualValue[5] = {
-    STOMP_OFF,
-    STOMP_OFF,
-    STOMP_OFF,
-    STOMP_OFF,
-    STOMP_OFF
-};
-
-#define CC_SCENE    34
-
-uint8_t sceneNumbers[5] = {
-    0,
-    1,
-    2,
-    3,
-    4
-};
+void setButtonActive(ButtonType type, uint8_t value, bool isActive, bool deactivateType) {
+  for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
+    if (buttons[i].type == type) {
+      if (deactivateType) {
+        buttons[i].active = false;
+      }
+      if (buttons[i].value == value) {
+        buttons[i].active = isActive;
+      }
+    }
+  }
+}
 
 void updateLeds() {
-  //first clear all LEDS.
-  //It is recommend to send data to leds
-  //only after all changes will be done
-  //to avoid flickering. Or
-  //parameter "send" of lEDs function is response for this
-  ledSetColorAll(COLOR_BLACK, false);
+  for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
+    LedColor color = buttons[i].active ? buttons[i].color : COLOR_BLACK;
+    ledSetColor(i, color, false);
+  }
 
-  //  //Green led show stompbox state
-  //  for (uint8_t i = 0; i < sizeof(stompCCNumbers); ++i) {
-  //    if (stompActualValue[i] >= STOMP_ON_MIN_VAL) {
-  //      ledSetColor(i + 5, COLOR_GREEN, false);//Active stomp is green led. Stomps leds numbers starts from 6
-  //    }
-  //  }
-
-  //Active scene is green led
-  ledSetColor(sceneButtonNumber + 5, COLOR_GREEN, true);//now all changes done and we can send prepared data to leds
-
-  //Active preset is red led
-  ledSetColor(presetButtonNumber, COLOR_RED, true);//now all changes done and we can send prepared data to leds
+  ledSend();
 }
 
 void updateScreen() {
-  //Usually guitar sound processors display preset numbers starting from 1, but internal number is still 0
-  //Convert integer to string
-  LCDWriteIntXY(9, 0, presetNumbers[presetButtonNumber] + 1, 3);
-
-  //clear bottom string
+  LCDWriteStringXY(0, 0, "   >> FFFW <<   ");
   LCDWriteStringXY(0, 1, "                ");
-  //print name
-  LCDWriteStringXY(0, 1, (const char *) presetNameToPrint);
+  LCDWriteStringXY(0, 1, (const char *) currentPresetName);
 }
 
-void processPresetSwitching(uint8_t buttonNum) {
-  //Update last active preset button number
-  presetButtonNumber = buttonNum;
+// Axe-Fx state
 
-  //Reset scene button number
-  sceneButtonNumber = 0;
-
-  //Send bank change midi message.
-  midiSendControlChange(0, PRESET_BANK, MIDI_CHANNEL);
-
-  //Send Program change midi message. It is usually used for preset switching
-  midiSendProgramChange(presetNumbers[presetButtonNumber], MIDI_CHANNEL);
-
-  //To get all LED in valid state we should send request for IA states in new preset
-  //AXEFX_GET_PRESET_BLOCKS_FLAGS have no additional payload, so parameter 3 is NULL
-  axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
-
-  //Update LEDs according new state of preset
-  updateLeds();
-
-  //Update screen according new state of preset
-  updateScreen();
-}
-
-void processStompboxSwitching(uint8_t buttonNum) {
-  //invert stompbox state
-  if (stompActualValue[buttonNum] < STOMP_ON_MIN_VAL) {
-    stompActualValue[buttonNum] = STOMP_ON;
-  } else {
-    stompActualValue[buttonNum] = STOMP_OFF;
-  }
-
-  //Send Control change midi message. It is usually used for fxs switching
-  midiSendControlChange(stompCCNumbers[buttonNum], stompActualValue[buttonNum], MIDI_CHANNEL);
-
-  //Update LEDs according new state of preset
-  updateLeds();
-}
-
-void processSceneSwitching(uint8_t buttonNum) {
-  //Update last active preset button number
-  sceneButtonNumber = buttonNum;
-
-  //Send Control change midi message. It is usually used for fxs switching
-  midiSendControlChange(CC_SCENE, sceneNumbers[buttonNum], MIDI_CHANNEL);
-
-  //Update LEDs according new state of preset
-  updateLeds();
-}
-
-//buttons process function example
-void processButtonEvent(ButtonEvent buttonEvent) {
-  //Preset switching performed only on button 1 - button 6 and only on BUTTON_PUSH event.
-  if (buttonEvent.buttonNum_ < 5 && buttonEvent.actionType_ == BUTTON_PUSH) {
-    processPresetSwitching(buttonEvent.buttonNum_);
-  } else if (buttonEvent.buttonNum_ >= 5 && buttonEvent.buttonNum_ <= 9 && buttonEvent.actionType_ == BUTTON_PUSH) {
-    //Stomps switching performed only on button 7 - button 12.
-    //Button 13-18 is configuration keyboard buttons, must be filtered out
-    //Also response only on BUTTON_PUSH event.
-    //    processStompboxSwitching(buttonEvent.buttonNum_ - 5);
-    processSceneSwitching(buttonEvent.buttonNum_ - 5);
-  }
-}
-
-//implement method for IA states processing
 void parseIaStates(uint8_t *sysexData) {
-  uint8_t i;
-  uint8_t j;
-  //Get total effect blocks in sysex message
+  AxeFxEffectBlockState state;
   uint8_t totalEffectsInMessage = axefxGetEffectBlockStateNumber(sysexData);
 
-  //temp variable to store single block state
-  AxeFxEffectBlockState state;
-
-  for (i = 0; i < totalEffectsInMessage; ++i) {
-    //check no error during parsing
+  for (uint8_t i = 0; i < totalEffectsInMessage; ++i) {
     if (axefxGetSingleEffectBlockState(&state, i, sysexData)) {
-      //looking for same CC numbers in internal array to set valid IA state.
-      for (j = 0; j < 5; ++j) {
-        if (stompCCNumbers[j] == state.iaCcNumber_) {
-          //if found - set state
-          stompActualValue[j] = state.isEnabled_ ? STOMP_ON : STOMP_OFF;
+      for (uint8_t j = 0; j < FOOT_BUTTONS_NUM; j++) {
+        if (buttons[j].type == BUTTON_IA && buttons[j].value == state.iaCcNumber_) {
+          buttons[j].active = state.isEnabled_;
         }
       }
     }
   }
 }
 
-//implement method for IA states processing
-void parsePresetName(uint8_t *sysexData) {
-  axefxGetPresetName((char *) presetNameToPrint, PRESET_NAME_MAX_SIZE, sysexData);
+// Actions
+
+void buttonsCallback(ButtonEvent buttonEvent) {
+  if (buttonEvent.actionType_ == BUTTON_NO_EVENT) {
+    return;
+  }
+
+  if (buttonEvent.actionType_ == BUTTON_PUSH) {
+    Button button = buttons[buttonEvent.buttonNum_];
+
+    switch (button.type) {
+      case BUTTON_PRESET:
+        setButtonActive(BUTTON_PRESET, button.value, true, true);
+        setButtonActive(BUTTON_SCENE, 0, true, true);
+
+        midiSendControlChange(0, MY_AXEFX_PRESET_BANK, MY_AXEFX_MIDI_CHANNEL);
+        midiSendProgramChange(button.value, MY_AXEFX_MIDI_CHANNEL);
+        axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+
+        updateLeds();
+        break;
+
+      case BUTTON_SCENE:
+        setButtonActive(BUTTON_SCENE, button.value, true, true);
+
+        midiSendControlChange(CC_SCENE_SELECT, button.value, MY_AXEFX_MIDI_CHANNEL);
+        axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+
+        updateLeds();
+        break;
+
+      case BUTTON_IA:
+        setButtonActive(BUTTON_IA, button.value, !button.active, false);
+
+        midiSendControlChange(button.value, button.active ? CC_MIN_VALUE : CC_MAX_VALUE, MY_AXEFX_MIDI_CHANNEL);
+
+        updateLeds();
+        break;
+
+      case BUTTON_NONE:
+      default:
+        break;
+    }
+  }
 }
 
-//create callback for income sysex messages from axefx
 void sysExCallback(uint16_t length) {
-  //get pointer to last sysex message payload data
   uint8_t *sysexData = midiGetLastSysExData();
 
-  //check if SysEx from Axe Fx. If not do nothing. Also can check model ID here
   if (!axeFxCheckFractalManufId(sysexData)) {
     return;
   }
@@ -228,49 +156,38 @@ void sysExCallback(uint16_t length) {
 
   switch (function) {
     case AXEFX_GET_PRESET_BLOCKS_FLAGS:
-      parseIaStates(sysexData);//parse IA state and set internal states
-      axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);//now we can send new preset name request
-      updateLeds();//update LEDs with actual IA states
+      parseIaStates(sysexData);
+      axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);
+
+      updateLeds();
       break;
 
     case AXEFX_GET_PRESET_NAME:
-      parsePresetName(sysexData);
+      axefxGetPresetName((char *) currentPresetName, TB_LCD_WIDTH, sysexData);
+
       updateScreen();
+      break;
 
     default:
-      break;//in this example all others message drops
+      break;
   }
 }
 
+// Main
+
 int main(void) {
-  //Library initialization
   initBjDevLib();
 
-  //third-party LCD library initialization
-  //third-party LCD library initialization
-  LCDInit(LS_ULINE);
-  LcdHideCursor();
+  LCDInit(LS_NONE);
+//  LcdHideCursor();
 
-  //register midi callback for SysEx messages
   midiRegisterSysExCallback(sysExCallback);
-
-  //put  "Preset # " to screen. It is a static title
-  LCDWriteStringXY(0, 0, "Preset # ");
 
   updateLeds();
   updateScreen();
 
-  //Create variable to store buttons events
-  ButtonEvent lastButtonEvent;
-
   while (1) {
-    //check buttons
-    lastButtonEvent = getButtonLastEvent();
-    //BUTTON_NO_EVENT if no any buttons action, so do nothing in this case, else process event
-    if (lastButtonEvent.actionType_ != BUTTON_NO_EVENT) {
-      processButtonEvent(lastButtonEvent);
-    }
-
+    buttonsCallback(getButtonLastEvent());
     midiRead();
   }
 }
