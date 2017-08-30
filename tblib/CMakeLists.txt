@@ -1,12 +1,10 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+cmake_minimum_required(VERSION 2.6.0)
 
-INCLUDE(${FFFW_BASE_DIRECTORY}/fffw_crosscompile.cmake)
+include(${PROJECT_SOURCE_DIR}/common.cmake)
 
-PROJECT(tblib)
+project(tblib)
 
-MESSAGE(STATUS "\nCreating tbseries library...")
-
-SET(HEADER_FILES
+set(header_files
         adc.h
         bjdevlib_tb.h
         button.h
@@ -24,7 +22,7 @@ SET(HEADER_FILES
         uart.h
         unique_id.h)
 
-SET(SOURCE_FILES
+set(source_files
         adc.c
         bjdevlib_tb.c
         button.c
@@ -40,5 +38,4 @@ SET(SOURCE_FILES
         uart.c
         unique_id.c)
 
-ADD_LIBRARY(tblib ${HEADER_FILES} ${SOURCE_FILES})
-SET(TB_LIBRARY tblib CACHE PATH "LCD library valiavle")
+add_library(tblib ${header_files} ${source_files})

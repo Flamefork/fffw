@@ -1,18 +1,15 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+cmake_minimum_required(VERSION 2.6.0)
 
-INCLUDE(${FFFW_BASE_DIRECTORY}/fffw_crosscompile.cmake)
+include(${PROJECT_SOURCE_DIR}/common.cmake)
 
-PROJECT(lcdlib)
+project(lcdlib)
 
-MESSAGE(STATUS "\nCreating lcdlib library...")
-
-SET(HEADER_FILES
+set(header_files
         custom_char.h
         lcd_tb.h
         myutils.h)
 
-SET(SOURCE_FILES
+set(source_files
         lcd_tb.c)
 
-ADD_LIBRARY(lcdlib ${HEADER_FILES} ${SOURCE_FILES})
-SET(LCD_LIBRARY lcdlib CACHE PATH "LCD library valiavle")
+add_library(lcdlib ${header_files} ${source_files})

@@ -1,19 +1,13 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+cmake_minimum_required(VERSION 2.6.0)
 
-INCLUDE(fffw_crosscompile.cmake)
+include(common.cmake)
 
-PROJECT(fffw)
+project(fffw)
 
-SET(FFFW_BASE_DIRECTORY ${PROJECT_SOURCE_DIR})
-INCLUDE_DIRECTORIES(${FFFW_BASE_DIRECTORY})
+add_executable(fffw src/main.c)
 
-INCLUDE_DIRECTORIES(${FFFW_BASE_DIRECTORY}/tblib)
-ADD_SUBDIRECTORY(${FFFW_BASE_DIRECTORY}/tblib)
+add_project_library_dependency(fffw tblib)
+add_project_library_dependency(fffw lcdlib)
+add_project_library_dependency(fffw fractallib)
 
-INCLUDE_DIRECTORIES(${FFFW_BASE_DIRECTORY}/lcdlib)
-ADD_SUBDIRECTORY(${FFFW_BASE_DIRECTORY}/lcdlib)
-
-INCLUDE_DIRECTORIES(${FFFW_BASE_DIRECTORY}/fractallib)
-ADD_SUBDIRECTORY(${FFFW_BASE_DIRECTORY}/fractallib)
-
-ADD_SUBDIRECTORY(${FFFW_BASE_DIRECTORY}/firmware)
+create_hex(fffw)

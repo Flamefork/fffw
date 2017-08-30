@@ -1,16 +1,13 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+cmake_minimum_required(VERSION 2.6.0)
 
-INCLUDE(${FFFW_BASE_DIRECTORY}/fffw_crosscompile.cmake)
+include(${PROJECT_SOURCE_DIR}/common.cmake)
 
-PROJECT(fractallib)
+project(fractallib)
 
-MESSAGE(STATUS "\nCreating fractallib library...")
-
-SET(HEADER_FILES
+set(header_files
         axefx.h)
 
-SET(SOURCE_FILES
+set(source_files
         axefx.c)
 
-ADD_LIBRARY(fractallib ${HEADER_FILES} ${SOURCE_FILES})
-SET(FRACTAL_LIBRARY fractallib CACHE PATH "LCD library valiavle")
+add_library(fractallib ${header_files} ${source_files})
