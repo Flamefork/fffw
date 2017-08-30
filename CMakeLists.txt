@@ -11,3 +11,5 @@ add_project_library_dependency(fffw lcdlib)
 add_project_library_dependency(fffw fractallib)
 
 create_hex(fffw)
+
+flash_hex(fffw /dev/cu.usbserial-AI1WX4XP 9600)
