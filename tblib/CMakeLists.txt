@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 2.6.0)
-
-include(${PROJECT_SOURCE_DIR}/common.cmake)
+cmake_minimum_required(VERSION 3.8.0)
 
 project(tblib)
+
+include(${PROJECT_SOURCE_DIR}/../common.cmake)
 
 set(header_files
         adc.h

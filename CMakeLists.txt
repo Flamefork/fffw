@@ -1,15 +1,20 @@
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.8.0)
 
 include(common.cmake)
+include(macros.cmake)
+
+add_library_directory(tblib)
+add_library_directory(lcdlib)
+add_library_directory(fractallib)
 
 project(fffw)
 
 add_executable(fffw src/main.c)
 
-add_project_library_dependency(fffw tblib)
-add_project_library_dependency(fffw lcdlib)
-add_project_library_dependency(fffw fractallib)
+add_library_dependency(fffw tblib)
+add_library_dependency(fffw lcdlib)
+add_library_dependency(fffw fractallib)
 
 create_hex(fffw)
 
-flash_hex(fffw /dev/cu.usbserial-AI1WX4XP 9600)
+#flash_hex(fffw /dev/cu.usbserial-AI1WX4XP 9600)
