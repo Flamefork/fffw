@@ -15,6 +15,4 @@ add_library_dependency(fffw tblib)
 add_library_dependency(fffw lcdlib)
 add_library_dependency(fffw fractallib)
 
-create_hex(fffw)
-
-#flash_hex(fffw /dev/cu.usbserial-AI1WX4XP 9600)
+#flash(fffw 9600 /dev/cu.usbserial-AI1WX4XP)
