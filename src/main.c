@@ -115,8 +115,11 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         setButtonActive(BUTTON_SCENE, 0, true, true);
 
         midiSendControlChange(0, MY_AXEFX_PRESET_BANK, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Bank select: %d", MY_AXEFX_PRESET_BANK);
         midiSendProgramChange(button.value, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Program change: %d", button.value);
         axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+        LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
 
         updateLeds();
         break;
@@ -125,7 +128,9 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         setButtonActive(BUTTON_SCENE, button.value, true, true);
 
         midiSendControlChange(CC_SCENE_SELECT, button.value, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Scene select: %d", CC_SCENE_SELECT);
         axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+        LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
 
         updateLeds();
         break;
@@ -133,7 +138,9 @@ void buttonsCallback(ButtonEvent buttonEvent) {
       case BUTTON_IA:
         setButtonActive(BUTTON_IA, button.value, !button.active, false);
 
-        midiSendControlChange(button.value, button.active ? CC_MIN_VALUE : CC_MAX_VALUE, MY_AXEFX_MIDI_CHANNEL);
+        uint8_t ccValue = button.active ? CC_MIN_VALUE : CC_MAX_VALUE;
+        midiSendControlChange(button.value, ccValue, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Control change: %d = %d", button.value, ccValue);
 
         updateLeds();
         break;
@@ -156,6 +163,8 @@ void sysExCallback(uint16_t length) {
 
   switch (function) {
     case AXEFX_GET_PRESET_BLOCKS_FLAGS:
+      LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_BLOCKS_FLAGS");
+
       parseIaStates(sysexData);
       axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);
 
@@ -163,12 +172,31 @@ void sysExCallback(uint16_t length) {
       break;
 
     case AXEFX_GET_PRESET_NAME:
+      LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_NAME");
+
       axefxGetPresetName((char *) currentPresetName, TB_LCD_WIDTH, sysexData);
 
       updateScreen();
       break;
 
+    case AXEFX_GET_PRESET_NUMBER:
+      LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_NUMBER");
+      break;
+
+    case AXEFX_SET_SCENE_NUMBER:
+      LOG(SEV_INFO, "GOT  AXEFX_SET_SCENE_NUMBER");
+      break;
+
+    case AXEFX_FRONT_PANEL_CHANGE_DETECTED:
+      LOG(SEV_INFO, "GOT  AXEFX_FRONT_PANEL_CHANGE_DETECTED");
+      break;
+
+    case AXEFX_TEMPO_BEAT:
+      //LOG(SEV_INFO, "GOT  AXEFX_TEMPO_BEAT");
+      break;
+
     default:
+      LOG(SEV_INFO, "GOT  Unhandled function response: %02X", function);
       break;
   }
 }
@@ -179,7 +207,7 @@ int main(void) {
   initBjDevLib();
 
   LCDInit(LS_NONE);
-//  LcdHideCursor();
+  LcdHideCursor();
 
   midiRegisterSysExCallback(sysExCallback);
 

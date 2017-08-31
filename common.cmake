@@ -9,4 +9,6 @@ set(CMAKE_C_FLAGS "\
     -mmcu=atmega64 \
     -DF_CPU=8000000UL \
     -DTB_11P_DEVICE \
+    -DLOG_ENABLED \
+    -DLOG_SEVERITY=1 \
 ")
