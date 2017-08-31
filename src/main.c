@@ -37,7 +37,7 @@ typedef struct Button {
 
 // Variables
 
-const char currentPresetName[TB_LCD_WIDTH] = VERSION_STRING;
+const char currentPresetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
 
 Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .value=17},
                                     {.type=BUTTON_PRESET, .color=COLOR_RED, .value=18},
@@ -174,7 +174,7 @@ void sysExCallback(uint16_t length) {
     case AXEFX_GET_PRESET_NAME:
       LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_NAME");
 
-      axefxGetPresetName((char *) currentPresetName, TB_LCD_WIDTH, sysexData);
+      axefxGetPresetName((char *) currentPresetName, TB_LCD_WIDTH + 1, sysexData);
 
       updateScreen();
       break;
