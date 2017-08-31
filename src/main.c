@@ -118,8 +118,6 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         LOG(SEV_INFO, "SENT Bank select: %d", MY_AXEFX_PRESET_BANK);
         midiSendProgramChange(button.value, MY_AXEFX_MIDI_CHANNEL);
         LOG(SEV_INFO, "SENT Program change: %d", button.value);
-        axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
-        LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
 
         updateLeds();
         break;
@@ -129,8 +127,6 @@ void buttonsCallback(ButtonEvent buttonEvent) {
 
         midiSendControlChange(CC_SCENE_SELECT, button.value, MY_AXEFX_MIDI_CHANNEL);
         LOG(SEV_INFO, "SENT Scene select: %d", CC_SCENE_SELECT);
-        axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
-        LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
 
         updateLeds();
         break;
@@ -166,7 +162,6 @@ void sysExCallback(uint16_t length) {
       LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_BLOCKS_FLAGS");
 
       parseIaStates(sysexData);
-      axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);
 
       updateLeds();
       break;
@@ -181,6 +176,11 @@ void sysExCallback(uint16_t length) {
 
     case AXEFX_GET_PRESET_NUMBER:
       LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_NUMBER");
+
+      axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);
+      LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_NAME");
+      axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+      LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
       break;
 
     case AXEFX_SET_SCENE_NUMBER:
@@ -189,6 +189,9 @@ void sysExCallback(uint16_t length) {
 
     case AXEFX_FRONT_PANEL_CHANGE_DETECTED:
       LOG(SEV_INFO, "GOT  AXEFX_FRONT_PANEL_CHANGE_DETECTED");
+
+      axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+      LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
       break;
 
     case AXEFX_TEMPO_BEAT:
