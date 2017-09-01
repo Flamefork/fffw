@@ -113,7 +113,6 @@ void buttonsCallback(ButtonEvent buttonEvent) {
     switch (button.type) {
       case BUTTON_PRESET:
         setButtonActive(BUTTON_PRESET, button.value, true, true);
-        setButtonActive(BUTTON_SCENE, 0, true, true);
 
         midiSendControlChange(0, MY_AXEFX_PRESET_BANK, MY_AXEFX_MIDI_CHANNEL);
         LOG(SEV_INFO, "SENT Bank select: %d", MY_AXEFX_PRESET_BANK);
@@ -124,12 +123,8 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         break;
 
       case BUTTON_SCENE:
-        setButtonActive(BUTTON_SCENE, button.value, true, true);
-
         midiSendControlChange(CC_SCENE_SELECT, button.value, MY_AXEFX_MIDI_CHANNEL);
         LOG(SEV_INFO, "SENT Scene select: %d", CC_SCENE_SELECT);
-
-        updateLeds();
         break;
 
       case BUTTON_IA:
@@ -186,6 +181,11 @@ void sysExCallback(uint16_t length) {
 
     case AXEFX_SET_SCENE_NUMBER:
       LOG(SEV_INFO, "GOT  AXEFX_SET_SCENE_NUMBER");
+
+      uint8_t sceneNumber = axefxGetSceneNumber(sysexData);
+      setButtonActive(BUTTON_SCENE, sceneNumber, true, true);
+
+      updateLeds();
       break;
 
     case AXEFX_FRONT_PANEL_CHANGE_DETECTED:

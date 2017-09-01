@@ -124,3 +124,8 @@ void axefxGetPresetName(char *name, uint8_t maxSize, uint8_t *sysEx) {
   strncpy(name, (char *) (sysEx + pgm_read_byte(&functionPayloadOffsetBytes)), maxSize);
   *(name + maxSize - 1) = '\0';
 }
+
+uint8_t axefxGetSceneNumber(uint8_t *sysEx) {
+  uint8_t *scene = sysEx + pgm_read_byte(&functionPayloadOffsetBytes);
+  return *scene & 0x07;
+}

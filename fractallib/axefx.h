@@ -140,4 +140,10 @@ uint8_t axefxGetAllEffectBlockState(AxeFxEffectBlockState *blockStates, uint8_t 
  */
 void axefxGetPresetName(char *name, uint8_t maxSize, uint8_t *sysEx);
 
+/*
+ * @brief	Get scene number from SysEx
+ * @param	*sysEx -	pointer to SysEx message to parse
+ */
+uint8_t axefxGetSceneNumber(uint8_t *sysEx);
+
 #endif /* axefx_h_ */
