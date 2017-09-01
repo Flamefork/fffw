@@ -4,20 +4,28 @@
 #include "axe_state.h"
 #include "settings.h"
 
+// State
+
+ButtonPage *page;
+
 // Indication
 
 void updateLeds() {
   for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
     bool isActive = false;
-    switch (buttons[i].type) {
+    Button button = page->buttons[i];
+    switch (button.type) {
       case BUTTON_PRESET:
-        isActive = buttons[i].value == axeGetPresetNumber();
+        isActive = button.value == axeGetPresetNumber();
         break;
       case BUTTON_SCENE:
-        isActive = buttons[i].value == axeGetSceneNumber();
+        isActive = button.value == axeGetSceneNumber();
         break;
       case BUTTON_BLOCK_BYPASS:
-        isActive = axeGetBlockActive(buttons[i].value);
+        isActive = axeGetBlockActive(button.value);
+        break;
+      case BUTTON_PAGE:
+        isActive = true;
         break;
       case BUTTON_NONE:
       default:
@@ -25,10 +33,10 @@ void updateLeds() {
     }
 
     if (i != PEDAL_LED) {
-      LedColor color = isActive ? buttons[i].color : COLOR_BLACK;
+      LedColor color = isActive ? button.color : COLOR_BLACK;
       ledSetColor(i, color, false);
     } else {
-      PedalLedColor color = isActive ? buttons[i].pedalColor : PEDAL_COLOR_NO;
+      PedalLedColor color = isActive ? button.pedalColor : PEDAL_COLOR_NO;
       ledSetPedalColorAll(PEDAL_COLOR_NO, false);
       ledSetPedalColor(0, color, false);
       ledSetPedalColor(8, color, false);
@@ -40,9 +48,15 @@ void updateLeds() {
 }
 
 void updateScreen() {
-  LCDWriteStringXY(0, 0, "   >> FFFW <<   ");
+  LCDWriteStringXY(0, 0, "                ");
+  LCDWriteStringXY(0, 0, page->name);
   LCDWriteStringXY(0, 1, "                ");
   LCDWriteStringXY(0, 1, axeGetPresetName());
+}
+
+void updateIndication() {
+  updateLeds();
+  updateScreen();
 }
 
 // Callbacks
@@ -54,7 +68,7 @@ void buttonsCallback(ButtonEvent buttonEvent) {
   LOG(SEV_INFO, "Button %d event: %d", buttonEvent.buttonNum_, buttonEvent.actionType_);
 
   if (buttonEvent.actionType_ == BUTTON_PUSH) {
-    Button button = buttons[buttonEvent.buttonNum_];
+    Button button = page->buttons[buttonEvent.buttonNum_];
     switch (button.type) {
       case BUTTON_PRESET:
         axeSetPresetNumber(button.value);
@@ -64,6 +78,10 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         break;
       case BUTTON_BLOCK_BYPASS:
         axeToggleBlock(button.value);
+        break;
+      case BUTTON_PAGE:
+        page = &pages[button.value];
+        updateIndication();
         break;
       case BUTTON_NONE:
       default:
@@ -83,11 +101,6 @@ void expPedalsCallback(PedalNumber pedalNumber, uint8_t pedalPosition) {
   }
 }
 
-void updateIndication() {
-  updateLeds();
-  updateScreen();
-}
-
 // Main
 
 int main(void) {
@@ -95,6 +108,8 @@ int main(void) {
 
   LCDInit(LS_NONE);
   LcdHideCursor();
+
+  page = &pages[0];
 
   expRegisterPedalChangePositionCallback(expPedalsCallback);
 

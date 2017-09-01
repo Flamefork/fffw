@@ -1,5 +1,5 @@
 // Version
-#define VERSION_STRING "  Version 0.22  "
+#define VERSION_STRING " >> FFFW 0.2 << "
 
 // TB hardware consts
 #define TB_LCD_WIDTH 16
@@ -16,7 +16,8 @@ typedef enum ButtonType {
   BUTTON_NONE,
   BUTTON_PRESET,
   BUTTON_SCENE,
-  BUTTON_BLOCK_BYPASS
+  BUTTON_BLOCK_BYPASS,
+  BUTTON_PAGE,
 } ButtonType;
 
 typedef struct Button {
@@ -31,6 +32,11 @@ typedef struct ExpressionPedal {
   uint8_t calibrationMax;
   uint8_t ccNumber;
 } ExpressionPedal;
+
+typedef struct ButtonPage {
+  char   name[TB_LCD_WIDTH + 1];
+  Button *buttons;
+} ButtonPage;
 
 // Blocks and CCs
 
