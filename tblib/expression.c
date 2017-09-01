@@ -24,7 +24,7 @@ const ioPort pedalsArray[MAX_PEDALS] PROGMEM = {
 
 #define EXP_P1_ADC_CHAN 3
 #define EXP_P2_ADC_CHAN 4
-#define EXP_P_ONBPAR_ADC_CHAN 6
+#define EXP_P_ONBPAR_ADC_CHAN 2
 
 static const uint8_t adcChanArray[MAX_PEDALS] = {EXP_P1_ADC_CHAN, EXP_P2_ADC_CHAN, EXP_P_ONBPAR_ADC_CHAN};
 static uint8_t pedalsPrevValue[MAX_PEDALS] = {0, 0, 0};

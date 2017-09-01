@@ -1,7 +1,7 @@
 /*
  * BJ Devices Travel Box series midi controller library
  * @file	pinout.h
- * 
+ *
  * @brief	ATmega pins location and shift registers description.
  *			Supports all TB series midi controllers modification via global defines.
 			User must define controller modification in any source file or in project properties.
@@ -11,11 +11,11 @@
 			TB_8_DEVICE  - TB-8 midi controller
 			TB_11P_DEVICE  - TB-11P midi controller with expression pedal on board
 			TB_6P_DEVICE  - TB-6P midi controller with expression pedal on board
-			  
+
  *
  * Software is provided "as is" without express or implied warranty.
  * BJ Devices 2015
- */ 
+ */
 
 
 #ifndef pinout_h_
@@ -39,7 +39,7 @@
 
 #elif defined (TB_5_DEVICE)
 #	define FOOT_BUTTONS_NUM	5
-#endif 
+#endif
 
 #define CONF_BUTTONS_NUM	6
 
@@ -110,12 +110,12 @@
 #define EXP_P2_PIN	4
 
 #define EXP_P_OB_PORT	PORTF
-#define EXP_P_OB_PIN	6
+#define EXP_P_OB_PIN	2
 
 
 
 //On board LEDs shift register pin numbers
-#define LED1_R	6 
+#define LED1_R	6
 #define LED2_R	4
 #define LED3_R	2
 #define LED4_R	0
