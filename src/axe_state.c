@@ -11,8 +11,8 @@
 static void (*updateCallback)();
 
 char                  presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
-uint16_t              presetNumber                 = 0;
-uint8_t               sceneNumber                  = 0;
+uint16_t              presetNumber                 = 0xFFFF;
+uint8_t               sceneNumber                  = 0xFF;
 AxeFxEffectBlockState blockStates[0xFF];
 
 char *axeGetPresetName() {

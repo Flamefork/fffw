@@ -1,5 +1,5 @@
 // Version
-#define VERSION_STRING "Version 0.2"
+#define VERSION_STRING "  Version 0.22  "
 
 // TB hardware consts
 #define TB_LCD_WIDTH 16
