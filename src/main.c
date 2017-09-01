@@ -41,8 +41,8 @@ void updateLeds() {
     } else {
       PedalLedColor color = isActive ? button.pedalColor : PEDAL_COLOR_NO;
       ledSetPedalColorAll(PEDAL_COLOR_NO, false);
-      ledSetPedalColor(0, color, false);
-      ledSetPedalColor(8, color, false);
+      ledSetPedalColor(1, color, false);
+      ledSetPedalColor(9, color, false);
     }
   }
 
