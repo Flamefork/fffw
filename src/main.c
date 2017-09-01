@@ -159,9 +159,8 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         uint8_t ccValue = button.active ? CC_MIN_VALUE : CC_MAX_VALUE;
         midiSendControlChange(button.value2, ccValue, MY_AXEFX_MIDI_CHANNEL);
         LOG(SEV_INFO, "SENT Control change: %d = %d", button.value2, ccValue);
-
-        setButtonActive(BUTTON_BLOCK_BYPASS, button.value, !button.active, false);
-        updateLeds();
+        axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
+        LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
         break;
 
       case BUTTON_NONE:
