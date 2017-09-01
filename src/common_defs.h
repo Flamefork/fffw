@@ -1,3 +1,42 @@
+// Version
+#define VERSION_STRING "Version 0.2"
+
+// TB hardware consts
+#define TB_LCD_WIDTH 16
+#define PEDAL_LED 10
+#define EXP_PEDALS_NUM 3
+
+// Axe-Fx specific config
+#define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
+#define MY_AXEFX_MIDI_CHANNEL 0
+
+// Types
+
+typedef enum ButtonType {
+  BUTTON_NONE,
+  BUTTON_PRESET,
+  BUTTON_SCENE,
+  BUTTON_BLOCK_BYPASS
+} ButtonType;
+
+typedef struct Button {
+  ButtonType    type;
+  uint16_t      value;
+  LedColor      color;
+  PedalLedColor pedalColor;
+} Button;
+
+typedef struct ExpressionPedal {
+  uint8_t calibrationMin;
+  uint8_t calibrationMax;
+  uint8_t ccNumber;
+} ExpressionPedal;
+
+// Blocks and CCs
+
+#define CC_MIN_VALUE 0x00
+#define CC_MAX_VALUE 0x7F
+
 #define CC_BANK_CHANGE 0
 #define CC_INPUT_VOLUME 10
 #define CC_OUT_1_VOLUME 11
@@ -114,9 +153,6 @@
 #define CC_REVERB_2_X_Y 117
 #define CC_WAHWAH_1_X_Y 118
 #define CC_WAHWAH_2_X_Y 119
-
-#define CC_MIN_VALUE 0x00
-#define CC_MAX_VALUE 0x7F
 
 #define AXEFX_BLOCK_AMP_1 106
 #define AXEFX_BLOCK_AMP_2 107

@@ -1,38 +1,4 @@
-// Version
-#define VERSION_STRING "Version 0.2"
-
-// TB hardware consts
-#define TB_LCD_WIDTH 16
-#define PEDAL_LED 10
-#define EXP_PEDALS_NUM 3
-
-// Axe-Fx specific config
-#define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
-#define MY_AXEFX_MIDI_CHANNEL 0
-
-// Types
-
-typedef enum ButtonType {
-  BUTTON_NONE,
-  BUTTON_PRESET,
-  BUTTON_SCENE,
-  BUTTON_BLOCK_BYPASS
-} ButtonType;
-
-typedef struct Button {
-  ButtonType    type;
-  uint16_t      value;
-  LedColor      color;
-  PedalLedColor pedalColor;
-} Button;
-
-typedef struct ExpressionPedal {
-  uint8_t calibrationMin;
-  uint8_t calibrationMax;
-  uint8_t ccNumber;
-} ExpressionPedal;
-
-// Variables
+#include "common_defs.h"
 
 Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .value=401},
                                     {.type=BUTTON_PRESET, .color=COLOR_RED, .value=402},
