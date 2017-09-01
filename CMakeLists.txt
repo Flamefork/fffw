@@ -11,6 +11,7 @@ project(fffw)
 
 add_executable(fffw
         src/axe_defs.h
+        src/settings.h
         src/main.c)
 
 add_library_dependency(fffw tblib)

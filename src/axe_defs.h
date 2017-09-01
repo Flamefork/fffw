@@ -114,6 +114,9 @@
 #define CC_WAHWAH_1_X_Y 118
 #define CC_WAHWAH_2_X_Y 119
 
+#define CC_MIN_VALUE 0x00
+#define CC_MAX_VALUE 0x7F
+
 #define AXEFX_BLOCK_AMP_1 106
 #define AXEFX_BLOCK_AMP_2 107
 #define AXEFX_BLOCK_CAB_1 108
