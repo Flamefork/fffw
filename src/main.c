@@ -10,6 +10,7 @@
 
 // TB hardware consts
 #define TB_LCD_WIDTH 16
+#define PEDAL_LED 10
 
 // Axe-Fx specific config
 #define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
@@ -28,10 +29,11 @@ typedef enum ButtonType {
 } ButtonType;
 
 typedef struct Button {
-  ButtonType type;
-  uint16_t   value;
-  uint8_t    value2;
-  LedColor   color;
+  ButtonType    type;
+  uint16_t      value;
+  uint8_t       value2;
+  LedColor      color;
+  PedalLedColor pedalColor;
   bool active;
 } Button;
 
@@ -49,7 +51,7 @@ Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .val
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=2},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=3},
                                     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .value=AXEFX_BLOCK_DRIVE_1},
-                                    {.type=BUTTON_NONE, .color=COLOR_BLACK},
+                                    {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_G, .value=AXEFX_BLOCK_WAH_1},
 };
 
 // Indication
@@ -69,11 +71,19 @@ void setButtonActive(ButtonType type, uint16_t value, bool isActive, bool deacti
 
 void updateLeds() {
   for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
-    LedColor color = buttons[i].active ? buttons[i].color : COLOR_BLACK;
-    ledSetColor(i, color, false);
+    if (i != PEDAL_LED) {
+      LedColor color = buttons[i].active ? buttons[i].color : COLOR_BLACK;
+      ledSetColor(i, color, false);
+    } else {
+      PedalLedColor color = buttons[i].active ? buttons[i].pedalColor : PEDAL_COLOR_NO;
+      ledSetPedalColorAll(PEDAL_COLOR_NO, false);
+      ledSetPedalColor(0, color, false);
+      ledSetPedalColor(8, color, false);
+    }
   }
 
   ledSend();
+  ledPedalSend();
 }
 
 void updateScreen() {
