@@ -11,6 +11,7 @@
 // TB hardware consts
 #define TB_LCD_WIDTH 16
 #define PEDAL_LED 10
+#define EXP_PEDALS_NUM 3
 
 // Axe-Fx specific config
 #define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
@@ -37,6 +38,12 @@ typedef struct Button {
   bool active;
 } Button;
 
+typedef struct ExpressionPedal {
+  uint8_t calibrationMin;
+  uint8_t calibrationMax;
+  uint8_t ccNumber;
+} ExpressionPedal;
+
 // Variables
 
 const char currentPresetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
@@ -51,8 +58,11 @@ Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .val
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=2},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=3},
                                     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .value=AXEFX_BLOCK_DRIVE_1},
-                                    {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_G, .value=AXEFX_BLOCK_WAH_1},
-};
+                                    {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_G, .value=AXEFX_BLOCK_WAH_1}};
+
+ExpressionPedal expressionPedals[EXP_PEDALS_NUM] = {{.calibrationMin=0, .calibrationMax=127, .ccNumber=17},
+                                                    {.calibrationMin=0, .calibrationMax=127, .ccNumber=18},
+                                                    {.calibrationMin=13, .calibrationMax=112, .ccNumber=16}};
 
 // Indication
 
@@ -117,12 +127,13 @@ void parseBlockInfo(uint8_t *sysexData) {
   }
 }
 
-// Actions
+// Callbacks
 
 void buttonsCallback(ButtonEvent buttonEvent) {
   if (buttonEvent.actionType_ == BUTTON_NO_EVENT) {
     return;
   }
+  LOG(SEV_INFO, "Button %d event: %d", buttonEvent.buttonNum_, buttonEvent.actionType_);
 
   if (buttonEvent.actionType_ == BUTTON_PUSH) {
     Button button = buttons[buttonEvent.buttonNum_];
@@ -226,6 +237,18 @@ void sysExCallback(uint16_t length) {
   }
 }
 
+void expPedalsCallback(PedalNumber pedalNumber, uint8_t pedalPosition) {
+  LOG(SEV_INFO, "Exp pedal %d position change: %d", pedalNumber, pedalPosition);
+
+  ExpressionPedal exp = expressionPedals[pedalNumber];
+  if (exp.ccNumber) {
+    int8_t value = 127 * (pedalPosition - exp.calibrationMin) / (exp.calibrationMax - exp.calibrationMin);
+    value = value < CC_MIN_VALUE ? CC_MIN_VALUE : value > CC_MAX_VALUE ? CC_MAX_VALUE : value;
+    midiSendControlChange(exp.ccNumber, (uint8_t) value, MY_AXEFX_MIDI_CHANNEL);
+    LOG(SEV_INFO, "SENT Control change: %d = %d", exp.ccNumber, value);
+  }
+}
+
 // Main
 
 int main(void) {
@@ -239,11 +262,14 @@ int main(void) {
   axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NUMBER, NULL, 0);
   LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_NUMBER");
 
+  expRegisterPedalChangePositionCallback(expPedalsCallback);
+
   updateLeds();
   updateScreen();
 
   while (1) {
     buttonsCallback(getButtonLastEvent());
+    expProcess();
     midiRead();
   }
 }
