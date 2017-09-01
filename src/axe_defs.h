@@ -1,3 +1,4 @@
+#define CC_BANK_CHANGE 0
 #define CC_INPUT_VOLUME 10
 #define CC_OUT_1_VOLUME 11
 #define CC_OUT_2_VOLUME 12
