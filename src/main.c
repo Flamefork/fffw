@@ -30,8 +30,8 @@ typedef enum ButtonType {
 
 typedef struct Button {
   ButtonType type;
-  uint8_t value;
-  LedColor color;
+  uint8_t    value;
+  LedColor   color;
   bool active;
 } Button;
 
@@ -86,6 +86,7 @@ void updateScreen() {
 
 void parseIaStates(uint8_t *sysexData) {
   AxeFxEffectBlockState state;
+
   uint8_t totalEffectsInMessage = axefxGetEffectBlockStateNumber(sysexData);
 
   for (uint8_t i = 0; i < totalEffectsInMessage; ++i) {

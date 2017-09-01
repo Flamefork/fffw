@@ -28,18 +28,18 @@ typedef enum AxeFxModelId {
 
 //supportable function ID
 typedef enum AxeFxFunctionId {
-  AXEFX_GET_SET_PARAMETER       = 0x02,
-  AXEFX_GET_SET_MODIFIER        = 0x07,
-  AXEFX_GET_FIRMWARE_VERSION    = 0x08,
-  AXEFX_TUNER_INFO              = 0x0D,
-  AXEFX_GET_PRESET_BLOCKS_FLAGS = 0x0E,
-  AXEFX_GET_PRESET_NAME         = 0x0F,
-  AXEFX_TEMPO_BEAT              = 0x10,
-  AXEFX_GET_PRESET_NUMBER       = 0x14,
-  AXEFX_GET_ROUTING_GRID_LAYOUT = 0x20,
+  AXEFX_GET_SET_PARAMETER           = 0x02,
+  AXEFX_GET_SET_MODIFIER            = 0x07,
+  AXEFX_GET_FIRMWARE_VERSION        = 0x08,
+  AXEFX_TUNER_INFO                  = 0x0D,
+  AXEFX_GET_PRESET_BLOCKS_FLAGS     = 0x0E,
+  AXEFX_GET_PRESET_NAME             = 0x0F,
+  AXEFX_TEMPO_BEAT                  = 0x10,
+  AXEFX_GET_PRESET_NUMBER           = 0x14,
+  AXEFX_GET_ROUTING_GRID_LAYOUT     = 0x20,
   AXEFX_FRONT_PANEL_CHANGE_DETECTED = 0x21,
-  AXEFX_LOOPER_STATUS_ENABLE    = 0x23,
-  AXEFX_SET_SCENE_NUMBER        = 0x29
+  AXEFX_LOOPER_STATUS_ENABLE        = 0x23,
+  AXEFX_SET_SCENE_NUMBER            = 0x29
 } AxeFxFunctionId;
 
 /*
