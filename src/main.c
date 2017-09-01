@@ -14,7 +14,6 @@
 // Axe-Fx specific config
 #define MY_AXEFX_MODEL AXEFX_2_XL_PLUS_MODEL
 #define MY_AXEFX_MIDI_CHANNEL 0
-#define MY_AXEFX_PRESET_BANK 3
 
 #define CC_MIN_VALUE 0x00
 #define CC_MAX_VALUE 0x7F
@@ -30,7 +29,7 @@ typedef enum ButtonType {
 
 typedef struct Button {
   ButtonType type;
-  uint8_t    value;
+  uint16_t   value;
   LedColor   color;
   bool active;
 } Button;
@@ -39,11 +38,11 @@ typedef struct Button {
 
 const char currentPresetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
 
-Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .value=17},
-                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=18},
-                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=19},
-                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=20},
-                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=21},
+Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .value=401},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=402},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=403},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=404},
+                                    {.type=BUTTON_PRESET, .color=COLOR_RED, .value=405},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=0},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=1},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=2},
@@ -54,7 +53,7 @@ Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .val
 
 // Indication
 
-void setButtonActive(ButtonType type, uint8_t value, bool isActive, bool deactivateType) {
+void setButtonActive(ButtonType type, uint16_t value, bool isActive, bool deactivateType) {
   for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
     if (buttons[i].type == type) {
       if (deactivateType) {
@@ -112,14 +111,10 @@ void buttonsCallback(ButtonEvent buttonEvent) {
 
     switch (button.type) {
       case BUTTON_PRESET:
-        setButtonActive(BUTTON_PRESET, button.value, true, true);
-
-        midiSendControlChange(0, MY_AXEFX_PRESET_BANK, MY_AXEFX_MIDI_CHANNEL);
-        LOG(SEV_INFO, "SENT Bank select: %d", MY_AXEFX_PRESET_BANK);
-        midiSendProgramChange(button.value, MY_AXEFX_MIDI_CHANNEL);
-        LOG(SEV_INFO, "SENT Program change: %d", button.value);
-
-        updateLeds();
+        midiSendControlChange(0, button.value / 128, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Bank select: %d", button.value / 128);
+        midiSendProgramChange(button.value % 128, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Program change: %d", button.value % 128);
         break;
 
       case BUTTON_SCENE:
@@ -173,10 +168,15 @@ void sysExCallback(uint16_t length) {
     case AXEFX_GET_PRESET_NUMBER:
       LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_NUMBER");
 
+      uint16_t presetNumber = axefxGetPresetNumber(sysexData);
+      setButtonActive(BUTTON_PRESET, presetNumber, true, true);
+
       axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NAME, NULL, 0);
       LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_NAME");
       axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_BLOCKS_FLAGS, NULL, 0);
       LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_BLOCKS_FLAGS");
+
+      updateLeds();
       break;
 
     case AXEFX_SET_SCENE_NUMBER:
@@ -214,6 +214,9 @@ int main(void) {
   LcdHideCursor();
 
   midiRegisterSysExCallback(sysExCallback);
+
+  axefxSendFunctionRequest(MY_AXEFX_MODEL, AXEFX_GET_PRESET_NUMBER, NULL, 0);
+  LOG(SEV_INFO, "SENT AXEFX_GET_PRESET_NUMBER");
 
   updateLeds();
   updateScreen();

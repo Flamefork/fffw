@@ -129,3 +129,8 @@ uint8_t axefxGetSceneNumber(uint8_t *sysEx) {
   uint8_t *scene = sysEx + pgm_read_byte(&functionPayloadOffsetBytes);
   return *scene & 0x07;
 }
+
+uint16_t axefxGetPresetNumber(uint8_t *sysEx) {
+  uint8_t *preset = sysEx + pgm_read_byte(&functionPayloadOffsetBytes);
+  return preset[1] & 0x7F | (preset[0] & 0x7F) << 7;
+}

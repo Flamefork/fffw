@@ -146,4 +146,10 @@ void axefxGetPresetName(char *name, uint8_t maxSize, uint8_t *sysEx);
  */
 uint8_t axefxGetSceneNumber(uint8_t *sysEx);
 
+/*
+ * @brief	Get preset number from SysEx
+ * @param	*sysEx -	pointer to SysEx message to parse
+ */
+uint16_t axefxGetPresetNumber(uint8_t *sysEx);
+
 #endif /* axefx_h_ */
