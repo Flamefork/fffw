@@ -78,8 +78,8 @@ uint8_t axefxGetEffectBlockStateNumber(uint8_t *sysEx) {
 static void fillEffectBlockStructFromGen2(AxeFxEffectBlockState *structToFill, uint8_t *blockInSysEx) {
   structToFill->isEnabled_  = ((blockInSysEx[0] & 0x01) == 0x00) ? false : true;
   structToFill->isX_        = ((blockInSysEx[0] & 0x02) == 0x00) ? false : true;
-  structToFill->iaCcNumber_ = ((blockInSysEx[1] >> 1) | blockInSysEx[2] << 6) & 0x7F;
-  structToFill->effectId_   = ((blockInSysEx[1] >> 3) | blockInSysEx[2] << 4) & 0x7F;
+  structToFill->iaCcNumber_ = ((blockInSysEx[1] & 0x7E) >> 1) | ((blockInSysEx[2] & 0x03) << 6);
+  structToFill->effectId_   = ((blockInSysEx[3] & 0x78) >> 3) | ((blockInSysEx[4] & 0x0F) << 4);
 }
 
 static void fillEffectBlockStructFromGen1(AxeFxEffectBlockState *structToFill, uint8_t *blockInSysEx) {
@@ -131,6 +131,6 @@ uint8_t axefxGetSceneNumber(uint8_t *sysEx) {
 }
 
 uint16_t axefxGetPresetNumber(uint8_t *sysEx) {
-  uint8_t *preset = sysEx + pgm_read_byte(&functionPayloadOffsetBytes);
-  return preset[1] & 0x7F | (preset[0] & 0x7F) << 7;
+  uint8_t *blockInSysEx = sysEx + pgm_read_byte(&functionPayloadOffsetBytes);
+  return (blockInSysEx[1] & 0x7F) | (blockInSysEx[0] & 0x7F) << 7;
 }
