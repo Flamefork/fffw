@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-#include "axe_default_cc.h"
+#include "axe_defs.h"
 
 #define VERSION_STRING "Version 0.05"
 
@@ -24,12 +24,13 @@ typedef enum ButtonType {
   BUTTON_NONE,
   BUTTON_PRESET,
   BUTTON_SCENE,
-  BUTTON_IA
+  BUTTON_BLOCK_BYPASS
 } ButtonType;
 
 typedef struct Button {
   ButtonType type;
   uint16_t   value;
+  uint8_t    value2;
   LedColor   color;
   bool active;
 } Button;
@@ -47,7 +48,7 @@ Button buttons[FOOT_BUTTONS_NUM] = {{.type=BUTTON_PRESET, .color=COLOR_RED, .val
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=1},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=2},
                                     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=3},
-                                    {.type=BUTTON_IA, .color=COLOR_GREEN, .value=CC_DRIVE_1_BYPASS},
+                                    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .value=AXEFX_BLOCK_DRIVE_1},
                                     {.type=BUTTON_NONE, .color=COLOR_BLACK},
 };
 
@@ -83,15 +84,22 @@ void updateScreen() {
 
 // Axe-Fx state
 
-void parseIaStates(uint8_t *sysexData) {
+void parseBlockInfo(uint8_t *sysexData) {
   AxeFxEffectBlockState state;
 
   uint8_t totalEffectsInMessage = axefxGetEffectBlockStateNumber(sysexData);
 
+  for (uint8_t j = 0; j < FOOT_BUTTONS_NUM; j++) {
+    if (buttons[j].type == BUTTON_BLOCK_BYPASS) {
+      buttons[j].value2 = 0;
+      buttons[j].active = false;
+    }
+  }
   for (uint8_t i = 0; i < totalEffectsInMessage; ++i) {
     if (axefxGetSingleEffectBlockState(&state, i, sysexData)) {
       for (uint8_t j = 0; j < FOOT_BUTTONS_NUM; j++) {
-        if (buttons[j].type == BUTTON_IA && buttons[j].value == state.iaCcNumber_) {
+        if (buttons[j].type == BUTTON_BLOCK_BYPASS && buttons[j].value == state.effectId_) {
+          buttons[j].value2 = state.iaCcNumber_;
           buttons[j].active = state.isEnabled_;
         }
       }
@@ -122,13 +130,16 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         LOG(SEV_INFO, "SENT Scene select: %d", CC_SCENE_SELECT);
         break;
 
-      case BUTTON_IA:
-        setButtonActive(BUTTON_IA, button.value, !button.active, false);
-
+      case BUTTON_BLOCK_BYPASS:
+        if (!button.value2) {
+          LOG(SEV_WARNING, "Unknown CC for block %d", button.value2);
+          break;
+        }
         uint8_t ccValue = button.active ? CC_MIN_VALUE : CC_MAX_VALUE;
-        midiSendControlChange(button.value, ccValue, MY_AXEFX_MIDI_CHANNEL);
-        LOG(SEV_INFO, "SENT Control change: %d = %d", button.value, ccValue);
+        midiSendControlChange(button.value2, ccValue, MY_AXEFX_MIDI_CHANNEL);
+        LOG(SEV_INFO, "SENT Control change: %d = %d", button.value2, ccValue);
 
+        setButtonActive(BUTTON_BLOCK_BYPASS, button.value, !button.active, false);
         updateLeds();
         break;
 
@@ -152,7 +163,7 @@ void sysExCallback(uint16_t length) {
     case AXEFX_GET_PRESET_BLOCKS_FLAGS:
       LOG(SEV_INFO, "GOT  AXEFX_GET_PRESET_BLOCKS_FLAGS");
 
-      parseIaStates(sysexData);
+      parseBlockInfo(sysexData);
 
       updateLeds();
       break;

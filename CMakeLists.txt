@@ -10,7 +10,7 @@ add_library_directory(fractallib)
 project(fffw)
 
 add_executable(fffw
-        src/axe_default_cc.h
+        src/axe_defs.h
         src/main.c)
 
 add_library_dependency(fffw tblib)
