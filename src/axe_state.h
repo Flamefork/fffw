@@ -8,9 +8,15 @@ uint8_t axeGetSceneNumber();
 
 bool axeGetBlockActive(uint8_t blockId);
 
+bool axeIsLooperState(uint8_t bit);
+
+void axeToggleLooperState(uint8_t bit);
+
 void axeSendCC(uint8_t ctrlNum, uint8_t val);
 
 void axeSendPC(uint8_t progNum);
+
+void axeSendFXPayload(AxeFxFunctionId functionId, uint8_t *payload, uint16_t payloadLength);
 
 void axeSendFX(AxeFxFunctionId functionId);
 

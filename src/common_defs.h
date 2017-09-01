@@ -17,6 +17,7 @@ typedef enum ButtonType {
   BUTTON_PRESET,
   BUTTON_SCENE,
   BUTTON_BLOCK_BYPASS,
+  BUTTON_LOOPER,
   BUTTON_PAGE,
 } ButtonType;
 

@@ -14,6 +14,17 @@ char                  presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
 uint16_t              presetNumber                 = 0xFFFF;
 uint8_t               sceneNumber                  = 0xFF;
 AxeFxEffectBlockState blockStates[0xFF];
+AxeFxLooperInfo       looperState;
+
+uint8_t looperCCs[] = {
+  CC_LOOPER_RECORD,
+  CC_LOOPER_PLAY,
+  CC_LOOPER_ONCE,
+  CC_LOOPER_DUB,
+  CC_LOOPER_REV,
+  CC_LOOPER_HALF,
+  CC_LOOPER_UNDO,
+};
 
 char *axeGetPresetName() {
   return presetName;
@@ -31,6 +42,9 @@ bool axeGetBlockActive(uint8_t blockId) {
   return blockStates[blockId].isEnabled_;
 }
 
+bool axeIsLooperState(uint8_t bit) {
+  return (looperState.status & (1 << bit)) != 0;
+}
 
 // Actions
 
@@ -44,9 +58,13 @@ void axeSendPC(uint8_t progNum) {
   LOG(SEV_INFO, "SENT PC: %d", progNum);
 }
 
-void axeSendFX(AxeFxFunctionId functionId) {
-  axefxSendFunctionRequest(MY_AXEFX_MODEL, functionId, NULL, 0);
+void axeSendFXPayload(AxeFxFunctionId functionId, uint8_t *payload, uint16_t payloadLength) {
+  axefxSendFunctionRequest(MY_AXEFX_MODEL, functionId, payload, payloadLength);
   LOG(SEV_INFO, "SENT FX: %02X", functionId);
+}
+
+void axeSendFX(AxeFxFunctionId functionId) {
+  axeSendFXPayload(functionId, NULL, 0);
 }
 
 void axeSetPresetNumber(uint16_t number) {
@@ -63,10 +81,22 @@ void axeToggleBlock(uint8_t blockId) {
     LOG(SEV_WARNING, "Unknown CC for block %d", blockId);
     return;
   }
+  uint8_t ccNumber = blockStates[blockId].iaCcNumber_;
   uint8_t ccValue = blockStates[blockId].isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
-  axeSendCC(blockStates[blockId].iaCcNumber_, ccValue);
+  axeSendCC(ccNumber, ccValue);
 
   axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
+}
+
+void axeEnableLooperStatus() {
+  uint8_t payload = 1;
+  axeSendFXPayload(MIDI_LOOPER_STATUS, &payload, 1);
+}
+
+void axeToggleLooperState(uint8_t bit) {
+  uint8_t ccNumber = looperCCs[bit];
+  uint8_t ccValue = axeIsLooperState(bit) ? CC_MIN_VALUE : CC_MAX_VALUE;
+  axeSendCC(ccNumber, ccValue);
 }
 
 // State management
@@ -126,6 +156,11 @@ void sysExCallback(uint16_t length) {
     case AXEFX_TEMPO_BEAT:
       break;
 
+    case MIDI_LOOPER_STATUS:
+      axefxParseLooperInfo(&looperState, sysexData);
+      shouldUpdate = true;
+      break;
+
     default:
       LOG(SEV_WARNING, "Unhandled FX: %02X", function);
       break;
@@ -142,6 +177,7 @@ void axeInit(void (*callback)()) {
   updateCallback = callback;
   midiRegisterSysExCallback(sysExCallback);
   axeSendFX(AXEFX_GET_PRESET_NUMBER);
+  axeEnableLooperStatus();
 }
 
 void axeUpdate() {

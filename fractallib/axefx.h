@@ -17,6 +17,16 @@
 
 #define FRACTAL_AUDIO_MANF_ID 0x000174
 
+typedef enum AxeFxLooperBit {
+  AXEFX_LOOPER_BIT_RECORD = 0,
+  AXEFX_LOOPER_BIT_PLAY,
+  AXEFX_LOOPER_BIT_ONCE,
+  AXEFX_LOOPER_BIT_OVERDUB,
+  AXEFX_LOOPER_BIT_REVERSE,
+  AXEFX_LOOPER_BIT_HALF,
+  AXEFX_LOOPER_BIT_UNDO
+} AxeFxLooperBit;
+
 //model ID
 typedef enum AxeFxModelId {
   AXEFX_STANDARD_MODEL  = 0x00,
@@ -38,7 +48,7 @@ typedef enum AxeFxFunctionId {
   AXEFX_GET_PRESET_NUMBER           = 0x14,
   AXEFX_GET_ROUTING_GRID_LAYOUT     = 0x20,
   AXEFX_FRONT_PANEL_CHANGE_DETECTED = 0x21,
-  AXEFX_LOOPER_STATUS_ENABLE        = 0x23,
+  MIDI_LOOPER_STATUS                = 0x23,
   AXEFX_SET_SCENE_NUMBER            = 0x29
 } AxeFxFunctionId;
 
@@ -64,6 +74,15 @@ typedef struct AxeFxEffectTunerInfo {
 } AxeFxEffectTunerInfo;
 
 /*
+ * MIDI_LOOPER_STATUS response format
+ * response consist of several blocks of following structure
+ */
+typedef struct AxeFxLooperInfo {
+  uint8_t status;      //Looper Status Bits (.status & AXEFX_LOOPER_RECORD)
+  uint8_t position;    //Looper Position (range: 0 to 99)
+} AxeFxLooperInfo;
+
+/*
  * @brief	Send function request to axe fx. If request contain any payload expect then functionId,
  *			user should prepare it by himself and pass as function parameter.
  * @param	modelId -		AxeFx model ID. See AxeFxModelId enum
@@ -79,6 +98,13 @@ void axefxSendFunctionRequest(AxeFxModelId modelId, AxeFxFunctionId functionId, 
  * @param	*sysEx -		pointer to SysEx message to parse
  */
 void axefxParseTunerInfo(AxeFxEffectTunerInfo *tunerInfo, uint8_t *sysEx);
+
+/*
+ * @brief	Parse SysEx message and fill tunerInfo structure, if SysEx is valid AXEFX_TUNER_INFO message
+ * @param	*tunerInfo -	pointer to tunerInfo structure which will contain tuner info
+ * @param	*sysEx -		pointer to SysEx message to parse
+ */
+void axefxParseLooperInfo(AxeFxLooperInfo *looperInfo, uint8_t *sysEx);
 
 /*
  * @brief	Check if SysEx have Fractal Audio manufacturer id (0x00 0x01 0x74)

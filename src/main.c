@@ -24,6 +24,9 @@ void updateLeds() {
       case BUTTON_BLOCK_BYPASS:
         isActive = axeGetBlockActive(button.value);
         break;
+      case BUTTON_LOOPER:
+        isActive = axeIsLooperState(button.value);
+        break;
       case BUTTON_PAGE:
         isActive = true;
         break;
@@ -78,6 +81,9 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         break;
       case BUTTON_BLOCK_BYPASS:
         axeToggleBlock(button.value);
+        break;
+      case BUTTON_LOOPER:
+        axeToggleLooperState(button.value);
         break;
       case BUTTON_PAGE:
         page = &pages[button.value];

@@ -59,6 +59,10 @@ void axefxParseTunerInfo(AxeFxEffectTunerInfo *tunerInfo, uint8_t *sysEx) {
   memcpy(tunerInfo, sysEx + pgm_read_byte(&functionPayloadOffsetBytes), sizeof(AxeFxEffectTunerInfo));
 }
 
+void axefxParseLooperInfo(AxeFxLooperInfo *looperInfo, uint8_t *sysEx) {
+  memcpy(looperInfo, sysEx + pgm_read_byte(&functionPayloadOffsetBytes), sizeof(AxeFxLooperInfo));
+}
+
 bool axeFxCheckFractalManufId(uint8_t *sysEx) {
   return (FRACTAL_AUDIO_MANF_ID == midiGetSysExManufacturerId(sysEx));
 }
