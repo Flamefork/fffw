@@ -171,11 +171,22 @@ void sysExCallback(uint16_t length) {
   }
 }
 
+void programChangeCallback(uint8_t channel, uint8_t program) {
+  LOG(SEV_INFO, "GOT PC: %d", program);
+}
+
+void controlChangeCallback(uint8_t channel, uint8_t ccNum, uint8_t ccVal) {
+  LOG(SEV_INFO, "GOT CC: %d = %d", ccNum, ccVal);
+}
+
+
 // Lifecycle
 
 void axeInit(void (*callback)()) {
   updateCallback = callback;
   midiRegisterSysExCallback(sysExCallback);
+  midiRegisterProgramChangeCallback(programChangeCallback);
+  midiRegisterControlChangeCallback(controlChangeCallback);
   axeSendFX(AXEFX_GET_PRESET_NUMBER);
   axeEnableLooperStatus();
 }
