@@ -1,6 +1,13 @@
 #include "axefx.h"
 
-char* axeGetPresetName();
+typedef struct AxeTunerState {
+  bool isEnabled;
+  char *note;
+  uint8_t stringNumber;
+  int8_t deviation;
+} AxeTunerState;
+
+char *axeGetPresetName();
 
 uint16_t axeGetPresetNumber();
 
@@ -10,7 +17,11 @@ bool axeGetBlockActive(uint8_t blockId);
 
 bool axeIsLooperState(uint8_t bit);
 
+AxeTunerState *axeGetTunerState();
+
 void axeToggleLooperState(uint8_t bit);
+
+void axeToggleTuner(bool enable);
 
 void axeSendCC(uint8_t ctrlNum, uint8_t val);
 

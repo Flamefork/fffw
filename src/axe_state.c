@@ -10,21 +10,40 @@
 
 static void (*updateCallback)();
 
-char                  presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
-uint16_t              presetNumber                 = 0xFFFF;
-uint8_t               sceneNumber                  = 0xFF;
+char presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
+uint16_t presetNumber = 0xFFFF;
+uint8_t sceneNumber = 0xFF;
 AxeFxEffectBlockState blockStates[0xFF];
-AxeFxLooperInfo       looperState;
+AxeFxLooperInfo looperState;
+AxeTunerState tunerState;
 
 uint8_t looperCCs[] = {
-  CC_LOOPER_RECORD,
-  CC_LOOPER_PLAY,
-  CC_LOOPER_ONCE,
-  CC_LOOPER_DUB,
-  CC_LOOPER_REV,
-  CC_LOOPER_HALF,
-  CC_LOOPER_UNDO,
+    CC_LOOPER_RECORD,
+    CC_LOOPER_PLAY,
+    CC_LOOPER_ONCE,
+    CC_LOOPER_DUB,
+    CC_LOOPER_REV,
+    CC_LOOPER_HALF,
+    CC_LOOPER_UNDO,
 };
+
+char *noteNames[12] = {
+    "A",
+    "A#",
+    "B",
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+};
+
+uint32_t tunerLastSeen = 0;
+#define TUNER_TIMEOUT 5
 
 char *axeGetPresetName() {
   return presetName;
@@ -44,6 +63,10 @@ bool axeGetBlockActive(uint8_t blockId) {
 
 bool axeIsLooperState(uint8_t bit) {
   return (looperState.status & (1 << bit)) != 0;
+}
+
+AxeTunerState *axeGetTunerState() {
+  return &tunerState;
 }
 
 // Actions
@@ -99,6 +122,10 @@ void axeToggleLooperState(uint8_t bit) {
   axeSendCC(ccNumber, ccValue);
 }
 
+void axeToggleTuner(bool enable) {
+  axeSendCC(CC_TUNER, enable ? CC_MAX_VALUE : CC_MIN_VALUE);
+}
+
 // State management
 
 void parseBlockInfo(uint8_t *sysexData) {
@@ -114,7 +141,7 @@ void parseBlockInfo(uint8_t *sysexData) {
 }
 
 void sysExCallback(uint16_t length) {
-  uint8_t *sysexData   = midiGetLastSysExData();
+  uint8_t *sysexData = midiGetLastSysExData();
 
   if (!axeFxCheckFractalManufId(sysexData)) {
     return;
@@ -123,7 +150,7 @@ void sysExCallback(uint16_t length) {
   AxeFxFunctionId function = axeFxGetFunctionId(sysexData);
   LOG(SEV_INFO, "GOT FX: %02X", function);
 
-  bool    shouldUpdate = false;
+  bool shouldUpdate = false;
 
   switch (function) {
     case AXEFX_GET_PRESET_BLOCKS_FLAGS:
@@ -145,7 +172,7 @@ void sysExCallback(uint16_t length) {
       break;
 
     case AXEFX_SET_SCENE_NUMBER:
-      sceneNumber  = axefxGetSceneNumber(sysexData);
+      sceneNumber = axefxGetSceneNumber(sysexData);
       shouldUpdate = true;
       break;
 
@@ -161,12 +188,30 @@ void sysExCallback(uint16_t length) {
       shouldUpdate = true;
       break;
 
+    case AXEFX_TUNER_INFO:
+      tunerLastSeen = getTicks();
+      AxeFxEffectTunerInfo tunerInfo;
+      axefxParseTunerInfo(&tunerInfo, sysexData);
+      tunerState.isEnabled = true;
+      tunerState.note = noteNames[tunerInfo.note_];
+      tunerState.stringNumber = tunerInfo.stringNumber_ + 1;
+      tunerState.deviation = tunerInfo.tuneData_ - 63;
+      shouldUpdate = true;
+      break;
+
     default:
       LOG(SEV_WARNING, "Unhandled FX: %02X", function);
       break;
   }
 
   if (shouldUpdate) {
+    (*updateCallback)();
+  }
+}
+
+void checkTunerTimeout() {
+  if (tunerState.isEnabled && getTicks() - tunerLastSeen > TUNER_TIMEOUT) {
+    tunerState.isEnabled = false;
     (*updateCallback)();
   }
 }
@@ -193,4 +238,5 @@ void axeInit(void (*callback)()) {
 
 void axeUpdate() {
   midiRead();
+  checkTunerTimeout();
 }

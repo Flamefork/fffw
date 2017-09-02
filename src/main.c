@@ -55,6 +55,13 @@ void updateScreen() {
   LCDWriteStringXY(0, 0, page->name);
   LCDWriteStringXY(0, 1, "                ");
   LCDWriteStringXY(0, 1, axeGetPresetName());
+
+  AxeTunerState *tunerState = axeGetTunerState();
+  if (tunerState->isEnabled) {
+    LCDWriteStringXY(TB_LCD_WIDTH - 4, 1, "    ");
+    LCDWriteStringXY(TB_LCD_WIDTH - 3, 1, tunerState->note);
+    LCDWriteIntXY(TB_LCD_WIDTH - 1, 1, tunerState->stringNumber, 1);
+  }
 }
 
 void updateIndication() {
