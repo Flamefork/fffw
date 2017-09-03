@@ -40,10 +40,18 @@ typedef struct ButtonPage {
   Button *buttons;
 } ButtonPage;
 
+// Macros
+
+#define PEDAL_LED_NUM(n) (uint8_t)((n) > 0 ? 16 - (n) : 8 + (n))
+#define ABS(n) (uint8_t)((n) < 0 ? -(n) : (n))
+#define SIGN(n) ((n) < 0 ? -1 : 1)
+
 // Blocks and CCs
 
 #define CC_MIN_VALUE 0x00
 #define CC_MAX_VALUE 0x7F
+
+#define AXEFX_TUNER_MAX_ABS_DEVIATION 40
 
 #define CC_BANK_CHANGE 0
 #define CC_INPUT_VOLUME 10

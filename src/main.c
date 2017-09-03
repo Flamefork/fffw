@@ -41,8 +41,29 @@ void updateLeds() {
     } else {
       PedalLedColor color = isActive ? button.pedalColor : PEDAL_COLOR_NO;
       ledSetPedalColorAll(PEDAL_COLOR_NO, false);
-      ledSetPedalColor(1, color, false);
-      ledSetPedalColor(9, color, false);
+      ledSetPedalColor(PEDAL_LED_NUM(-7), color, false);
+      ledSetPedalColor(PEDAL_LED_NUM(+7), color, false);
+    }
+  }
+
+  AxeTunerState *tunerState = axeGetTunerState();
+  if (tunerState->isEnabled) {
+    int8_t dev = tunerState->deviation;
+    if (ABS(dev) <= 1) {
+      ledSetPedalColor(PEDAL_LED_NUM(-1), PEDAL_COLOR_G, false);
+      ledSetPedalColor(PEDAL_LED_NUM(+1), PEDAL_COLOR_G, false);
+    } else if (ABS(dev) <= 2) {
+      ledSetPedalColor(PEDAL_LED_NUM(SIGN(dev)), PEDAL_COLOR_G, false);
+    } else if (ABS(dev) <= 4) {
+      ledSetPedalColor(PEDAL_LED_NUM(SIGN(dev)), PEDAL_COLOR_RG, false);
+    } else {
+      uint8_t height = 1 + 4 * ABS(dev) / AXEFX_TUNER_MAX_ABS_DEVIATION;
+      if (height > 5) {
+        height = 5;
+      }
+      for (int8_t i = 1; i <= height; i++) {
+        ledSetPedalColor(PEDAL_LED_NUM(SIGN(dev) * i), PEDAL_COLOR_R, false);
+      }
     }
   }
 
