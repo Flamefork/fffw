@@ -18,6 +18,7 @@ typedef enum ButtonType {
   BUTTON_SCENE,
   BUTTON_BLOCK_BYPASS,
   BUTTON_LOOPER,
+  BUTTON_TAP_TEMPO,
   BUTTON_PAGE,
 } ButtonType;
 

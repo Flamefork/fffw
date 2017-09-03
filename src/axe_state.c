@@ -8,7 +8,8 @@
 
 // State
 
-static void (*updateCallback)();
+bool shouldUpdate;
+void (*updateCallback)();
 
 char presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
 uint16_t presetNumber = 0xFFFF;
@@ -16,6 +17,7 @@ uint8_t sceneNumber = 0xFF;
 AxeFxEffectBlockState blockStates[0xFF];
 AxeFxLooperInfo looperState;
 AxeTunerState tunerState;
+bool isTempoBeat = false;
 
 uint8_t looperCCs[] = {
     CC_LOOPER_RECORD,
@@ -43,7 +45,12 @@ char *noteNames[12] = {
 };
 
 uint32_t tunerLastSeen = 0;
+uint32_t tempoLastSeen = 0;
+
 #define TUNER_TIMEOUT 5
+#define TEMPO_TIMEOUT 2
+
+// State getters
 
 char *axeGetPresetName() {
   return presetName;
@@ -67,6 +74,10 @@ bool axeIsLooperState(uint8_t bit) {
 
 AxeTunerState *axeGetTunerState() {
   return &tunerState;
+}
+
+bool axeIsTempoBeat() {
+  return isTempoBeat;
 }
 
 // Actions
@@ -150,8 +161,6 @@ void sysExCallback(uint16_t length) {
   AxeFxFunctionId function = axeFxGetFunctionId(sysexData);
   LOG(SEV_INFO, "GOT FX: %02X", function);
 
-  bool shouldUpdate = false;
-
   switch (function) {
     case AXEFX_GET_PRESET_BLOCKS_FLAGS:
       parseBlockInfo(sysexData);
@@ -181,6 +190,9 @@ void sysExCallback(uint16_t length) {
       break;
 
     case AXEFX_TEMPO_BEAT:
+      isTempoBeat = true;
+      tempoLastSeen = getTicks();
+      shouldUpdate = true;
       break;
 
     case MIDI_LOOPER_STATUS:
@@ -203,16 +215,19 @@ void sysExCallback(uint16_t length) {
       LOG(SEV_WARNING, "Unhandled FX: %02X", function);
       break;
   }
-
-  if (shouldUpdate) {
-    (*updateCallback)();
-  }
 }
 
 void checkTunerTimeout() {
   if (tunerState.isEnabled && getTicks() - tunerLastSeen > TUNER_TIMEOUT) {
     tunerState.isEnabled = false;
-    (*updateCallback)();
+    shouldUpdate = true;
+  }
+}
+
+void checkTempoTimeout() {
+  if (isTempoBeat && getTicks() - tempoLastSeen > TEMPO_TIMEOUT) {
+    isTempoBeat = false;
+    shouldUpdate = true;
   }
 }
 
@@ -237,6 +252,12 @@ void axeInit(void (*callback)()) {
 }
 
 void axeUpdate() {
+  shouldUpdate = false;
   midiRead();
   checkTunerTimeout();
+  checkTempoTimeout();
+
+  if (shouldUpdate) {
+    (*updateCallback)();
+  }
 }

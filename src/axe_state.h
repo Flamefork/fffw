@@ -19,6 +19,8 @@ bool axeIsLooperState(uint8_t bit);
 
 AxeTunerState *axeGetTunerState();
 
+bool axeIsTempoBeat();
+
 void axeToggleLooperState(uint8_t bit);
 
 void axeToggleTuner(bool enable);

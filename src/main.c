@@ -27,6 +27,9 @@ void updateLeds() {
       case BUTTON_LOOPER:
         isActive = axeIsLooperState(button.value);
         break;
+      case BUTTON_TAP_TEMPO:
+        isActive = axeIsTempoBeat();
+        break;
       case BUTTON_PAGE:
         isActive = true;
         break;
@@ -112,6 +115,9 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         break;
       case BUTTON_LOOPER:
         axeToggleLooperState(button.value);
+        break;
+      case BUTTON_TAP_TEMPO:
+        axeSendCC(CC_TEMPO, (uint8_t) CC_MAX_VALUE);
         break;
       case BUTTON_PAGE:
         page = &pages[button.value];

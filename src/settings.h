@@ -30,7 +30,7 @@ Button page1[FOOT_BUTTONS_NUM] = {
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_1},
     {.type=BUTTON_NONE, .color=COLOR_BLACK},
     {.type=BUTTON_NONE, .color=COLOR_BLACK},
-    {.type=BUTTON_NONE, .color=COLOR_BLACK},
+    {.type=BUTTON_TAP_TEMPO, .color=COLOR_GREEN},
     // P
     {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_G, .value=AXEFX_BLOCK_WAH_1}};
 
