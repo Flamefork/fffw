@@ -35,7 +35,7 @@ Button page1[FOOT_BUTTONS_NUM] = {
     // P
     {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_G, .value=AXEFX_BLOCK_WAH_1}};
 
-ButtonPage pages[2] = {{.name="PRESETS / SCENES", .buttons=page0},
+ButtonPage pages[2] = {{.name="PRESET/SCENE    ", .buttons=page0},
                        {.name="LOOPER          ", .buttons=page1, .looper=true}};
 
 ExpressionPedal expressionPedals[EXP_PEDALS_NUM] = {
