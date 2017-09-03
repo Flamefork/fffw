@@ -70,6 +70,10 @@ bool axeGetBlockActive(uint8_t blockId) {
   return blockStates[blockId].isEnabled_;
 }
 
+bool axeGetBlockAvailable(uint8_t blockId) {
+  return blockStates[blockId].iaCcNumber_ != 0;
+}
+
 bool axeIsLooperState(uint8_t bit) {
   return (looperState.status & (1 << bit)) != 0;
 }

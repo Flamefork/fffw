@@ -14,6 +14,7 @@ bool isMetronomeActive;
 void updateLeds() {
   for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
     bool isActive = false;
+    bool isAvailable = false;
     Button button = page->buttons[i];
     switch (button.type) {
       case BUTTON_PRESET:
@@ -24,6 +25,7 @@ void updateLeds() {
         break;
       case BUTTON_BLOCK_BYPASS:
         isActive = axeGetBlockActive(button.value);
+        isAvailable = axeGetBlockAvailable(button.value);
         break;
       case BUTTON_LOOPER:
         isActive = axeIsLooperState(button.value);
@@ -39,7 +41,7 @@ void updateLeds() {
     }
 
     if (i != PEDAL_LED) {
-      LedColor color = isActive ? button.color : COLOR_BLACK;
+      LedColor color = isActive ? button.color : isAvailable ? button.availableColor : COLOR_BLACK;
       ledSetColor(i, color, false);
     } else {
       PedalLedColor color = isActive ? button.pedalColor : PEDAL_COLOR_NO;
@@ -144,6 +146,11 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         isMetronomeActive = !isMetronomeActive;
         uint8_t ccValue = isMetronomeActive ? CC_MAX_VALUE : CC_MIN_VALUE;
         axeSendCC(CC_METRONOME, ccValue);
+        break;
+      case BUTTON_PAGE:
+        page = &pages[button.altValue];
+        updateLooperListener();
+        updateIndication();
         break;
       default:
         break;

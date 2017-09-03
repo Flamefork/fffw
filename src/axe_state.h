@@ -15,6 +15,8 @@ uint8_t axeGetSceneNumber();
 
 bool axeGetBlockActive(uint8_t blockId);
 
+bool axeGetBlockAvailable(uint8_t blockId);
+
 bool axeIsLooperState(uint8_t bit);
 
 uint8_t axeGetLooperPosition();
