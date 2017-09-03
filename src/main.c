@@ -24,8 +24,8 @@ void updateLeds() {
         isActive = button.value == axeGetSceneNumber();
         break;
       case BUTTON_BLOCK_BYPASS:
-        isActive = axeGetBlockActive(button.value);
-        isAvailable = axeGetBlockAvailable(button.value);
+        isActive = axeIsBlockActive(button.value);
+        isAvailable = axeIsBlockAvailable(button.value);
         break;
       case BUTTON_LOOPER:
         isActive = axeIsLooperState(button.value);
@@ -87,6 +87,9 @@ void updateScreen() {
     LCDWriteIntXY(TB_LCD_WIDTH - 1, 0, tunerState->stringNumber, 1);
   }
 
+  if (page->looper && !axeIsBlockAvailable(AXEFX_BLOCK_LOOPER)) {
+    LCDWriteStringXY(7, 0, "NOT FOUND");
+  }
   if (page->looper && axeIsLooperState(AXEFX_LOOPER_BIT_PLAY)) {
     uint8_t position = 7 + 9 * axeGetLooperPosition() / 100;
     char *marker = axeIsLooperState(AXEFX_LOOPER_BIT_REVERSE) ? "<" : ">";

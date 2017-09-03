@@ -66,11 +66,11 @@ uint8_t axeGetSceneNumber() {
   return sceneNumber;
 }
 
-bool axeGetBlockActive(uint8_t blockId) {
+bool axeIsBlockActive(uint8_t blockId) {
   return blockStates[blockId].isEnabled_;
 }
 
-bool axeGetBlockAvailable(uint8_t blockId) {
+bool axeIsBlockAvailable(uint8_t blockId) {
   return blockStates[blockId].iaCcNumber_ != 0;
 }
 
