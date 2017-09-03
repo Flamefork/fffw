@@ -86,11 +86,21 @@ void updateScreen() {
     LCDWriteStringXY(TB_LCD_WIDTH - 3, 1, tunerState->note);
     LCDWriteIntXY(TB_LCD_WIDTH - 1, 1, tunerState->stringNumber, 1);
   }
+
+  if (page->looper && axeIsLooperState(AXEFX_LOOPER_BIT_PLAY)) {
+    uint8_t position = 7 + 9 * axeGetLooperPosition() / 100;
+    char *marker = axeIsLooperState(AXEFX_LOOPER_BIT_REVERSE) ? "<" : ">";
+    LCDWriteStringXY(position, 0, marker);
+  }
 }
 
 void updateIndication() {
   updateLeds();
   updateScreen();
+}
+
+void updateLooperListener() {
+  axeToggleLooperListener(page->looper);
 }
 
 // Callbacks
@@ -121,6 +131,7 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         break;
       case BUTTON_PAGE:
         page = &pages[button.value];
+        updateLooperListener();
         updateIndication();
         break;
       default:
@@ -171,6 +182,8 @@ int main(void) {
   axeInit(updateIndication);
 
   updateIndication();
+
+  updateLooperListener();
 
   while (1) {
     buttonsCallback(getButtonLastEvent());

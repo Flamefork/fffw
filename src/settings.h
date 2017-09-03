@@ -22,20 +22,21 @@ Button page1[FOOT_BUTTONS_NUM] = {
     {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_RECORD},
     {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_PLAY},
     {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_OVERDUB},
-    {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_UNDO},
-    // 5
-    {.type=BUTTON_PAGE, .color=COLOR_RED, .value=0},
-    // 6 7 8 9 10
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_YELLOW, .value=AXEFX_BLOCK_DRIVE_1},
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_1},
-    {.type=BUTTON_NONE, .color=COLOR_BLACK},
-    {.type=BUTTON_NONE, .color=COLOR_BLACK},
     {.type=BUTTON_TAP_TEMPO, .color=COLOR_GREEN},
+    // 5
+    {.type=BUTTON_PAGE, .color=COLOR_YELLOW, .value=0},
+    // 6 7 8 9 10
+    {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_UNDO},
+    {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_REVERSE},
+    {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_HALF},
+    {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_ONCE},
+    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .value=AXEFX_BLOCK_LOOPER},
+
     // P
     {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_G, .value=AXEFX_BLOCK_WAH_1}};
 
 ButtonPage pages[2] = {{.name="PRESETS / SCENES", .buttons=page0},
-                       {.name="EFFECTS / LOOPER", .buttons=page1}};
+                       {.name="LOOPER          ", .buttons=page1, .looper=true}};
 
 ExpressionPedal expressionPedals[EXP_PEDALS_NUM] = {
     // External

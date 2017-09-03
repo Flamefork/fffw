@@ -44,6 +44,8 @@ char *noteNames[12] = {
     "G#",
 };
 
+AxeFxMultipurposeResponseInfo responseInfo;
+
 uint32_t tunerLastSeen = 0;
 uint32_t tempoLastSeen = 0;
 
@@ -70,6 +72,10 @@ bool axeGetBlockActive(uint8_t blockId) {
 
 bool axeIsLooperState(uint8_t bit) {
   return (looperState.status & (1 << bit)) != 0;
+}
+
+uint8_t axeGetLooperPosition() {
+  return looperState.position;
 }
 
 AxeTunerState *axeGetTunerState() {
@@ -122,9 +128,9 @@ void axeToggleBlock(uint8_t blockId) {
   axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
 }
 
-void axeEnableLooperStatus() {
-  uint8_t payload = 1;
-  axeSendFXPayload(MIDI_LOOPER_STATUS, &payload, 1);
+void axeToggleLooperListener(bool enable) {
+  uint8_t payload = enable ? 1 : 0;
+  axeSendFXPayload(AXEFX_LOOPER_STATUS, &payload, 1);
 }
 
 void axeToggleLooperState(uint8_t bit) {
@@ -195,7 +201,7 @@ void sysExCallback(uint16_t length) {
       shouldUpdate = true;
       break;
 
-    case MIDI_LOOPER_STATUS:
+    case AXEFX_LOOPER_STATUS:
       axefxParseLooperInfo(&looperState, sysexData);
       shouldUpdate = true;
       break;
@@ -209,6 +215,11 @@ void sysExCallback(uint16_t length) {
       tunerState.stringNumber = tunerInfo.stringNumber_ + 1;
       tunerState.deviation = tunerInfo.tuneData_ - 63;
       shouldUpdate = true;
+      break;
+
+    case AXEFX_MULTIPURPOSE_RESPONSE:
+      axefxParseMultipurposeResponseInfo(&responseInfo, sysexData);
+      LOG(SEV_INFO, "Multipurpose response FX: %02X, code: %02X", responseInfo.functionId, responseInfo.code);
       break;
 
     default:
@@ -248,7 +259,6 @@ void axeInit(void (*callback)()) {
   midiRegisterProgramChangeCallback(programChangeCallback);
   midiRegisterControlChangeCallback(controlChangeCallback);
   axeSendFX(AXEFX_GET_PRESET_NUMBER);
-  axeEnableLooperStatus();
 }
 
 void axeUpdate() {

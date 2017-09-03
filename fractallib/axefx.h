@@ -48,8 +48,9 @@ typedef enum AxeFxFunctionId {
   AXEFX_GET_PRESET_NUMBER           = 0x14,
   AXEFX_GET_ROUTING_GRID_LAYOUT     = 0x20,
   AXEFX_FRONT_PANEL_CHANGE_DETECTED = 0x21,
-  MIDI_LOOPER_STATUS                = 0x23,
-  AXEFX_SET_SCENE_NUMBER            = 0x29
+  AXEFX_LOOPER_STATUS               = 0x23,
+  AXEFX_SET_SCENE_NUMBER            = 0x29,
+  AXEFX_MULTIPURPOSE_RESPONSE       = 0x64,
 } AxeFxFunctionId;
 
 /*
@@ -74,13 +75,22 @@ typedef struct AxeFxEffectTunerInfo {
 } AxeFxEffectTunerInfo;
 
 /*
- * MIDI_LOOPER_STATUS response format
+ * AXEFX_LOOPER_STATUS response format
  * response consist of several blocks of following structure
  */
 typedef struct AxeFxLooperInfo {
   uint8_t status;      //Looper Status Bits (.status & AXEFX_LOOPER_RECORD)
   uint8_t position;    //Looper Position (range: 0 to 99)
 } AxeFxLooperInfo;
+
+/*
+ * AXEFX_MULTIPURPOSE_RESPONSE response format
+ * response consist of several blocks of following structure
+ */
+typedef struct AxeFxMultipurposeResponseInfo {
+  uint8_t functionId; //Function ID
+  uint8_t code;       //Response code
+} AxeFxMultipurposeResponseInfo;
 
 /*
  * @brief	Send function request to axe fx. If request contain any payload expect then functionId,
@@ -105,6 +115,13 @@ void axefxParseTunerInfo(AxeFxEffectTunerInfo *tunerInfo, uint8_t *sysEx);
  * @param	*sysEx -		pointer to SysEx message to parse
  */
 void axefxParseLooperInfo(AxeFxLooperInfo *looperInfo, uint8_t *sysEx);
+
+/*
+ * @brief	Parse SysEx message and fill responseInfo structure, if SysEx is valid AXEFX_MULTIPURPOSE_RESPONSE message
+ * @param	*responseInfo -	pointer to tunerInfo structure which will contain response info
+ * @param	*sysEx -		pointer to SysEx message to parse
+ */
+void axefxParseMultipurposeResponseInfo(AxeFxMultipurposeResponseInfo *responseInfo, uint8_t *sysEx);
 
 /*
  * @brief	Check if SysEx have Fractal Audio manufacturer id (0x00 0x01 0x74)

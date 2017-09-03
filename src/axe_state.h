@@ -17,9 +17,13 @@ bool axeGetBlockActive(uint8_t blockId);
 
 bool axeIsLooperState(uint8_t bit);
 
+uint8_t axeGetLooperPosition();
+
 AxeTunerState *axeGetTunerState();
 
 bool axeIsTempoBeat();
+
+void axeToggleLooperListener(bool enable);
 
 void axeToggleLooperState(uint8_t bit);
 
