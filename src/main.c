@@ -7,6 +7,7 @@
 // State
 
 ButtonPage *page;
+bool isMetronomeActive;
 
 // Indication
 
@@ -33,7 +34,6 @@ void updateLeds() {
       case BUTTON_PAGE:
         isActive = true;
         break;
-      case BUTTON_NONE:
       default:
         break;
     }
@@ -123,7 +123,19 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         page = &pages[button.value];
         updateIndication();
         break;
-      case BUTTON_NONE:
+      default:
+        break;
+    }
+  }
+
+  if (buttonEvent.actionType_ == BUTTON_HOLDON) {
+    Button button = page->buttons[buttonEvent.buttonNum_];
+    switch (button.type) {
+      case BUTTON_TAP_TEMPO:
+        isMetronomeActive = !isMetronomeActive;
+        uint8_t ccValue = isMetronomeActive ? CC_MAX_VALUE : CC_MIN_VALUE;
+        axeSendCC(CC_METRONOME, ccValue);
+        break;
       default:
         break;
     }
