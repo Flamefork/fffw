@@ -42,4 +42,4 @@ ExpressionPedal expressionPedals[EXP_PEDALS_NUM] = {
     {},
     {},
     // Onboard
-    {.ccNumber=16, .calibrationMin=13, .calibrationMax=112}};
+    {.ccNumber=16, .calibrationMin=13, .calibrationMax=112, .toggleTunerBelow=3}};

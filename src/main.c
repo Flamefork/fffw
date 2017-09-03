@@ -107,10 +107,13 @@ void expPedalsCallback(PedalNumber pedalNumber, uint8_t pedalPosition) {
   LOG(SEV_INFO, "Exp pedal %d position change: %d", pedalNumber, pedalPosition);
 
   ExpressionPedal exp = expressionPedals[pedalNumber];
+  int8_t value = 127 * (pedalPosition - exp.calibrationMin) / (exp.calibrationMax - exp.calibrationMin);
+  value = value < CC_MIN_VALUE ? CC_MIN_VALUE : value > CC_MAX_VALUE ? CC_MAX_VALUE : value;
   if (exp.ccNumber) {
-    int8_t value = 127 * (pedalPosition - exp.calibrationMin) / (exp.calibrationMax - exp.calibrationMin);
-    value = value < CC_MIN_VALUE ? CC_MIN_VALUE : value > CC_MAX_VALUE ? CC_MAX_VALUE : value;
     axeSendCC(exp.ccNumber, (uint8_t) value);
+  }
+  if (exp.toggleTunerBelow) {
+    axeToggleTuner(value < exp.toggleTunerBelow);
   }
 }
 

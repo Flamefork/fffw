@@ -32,6 +32,7 @@ typedef struct ExpressionPedal {
   uint8_t calibrationMin;
   uint8_t calibrationMax;
   uint8_t ccNumber;
+  uint8_t toggleTunerBelow;
 } ExpressionPedal;
 
 typedef struct ButtonPage {
