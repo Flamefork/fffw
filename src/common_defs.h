@@ -47,6 +47,7 @@ typedef struct ButtonPage {
 #define PEDAL_LED_NUM(n) (uint8_t)((n) > 0 ? 16 - (n) : 8 + (n))
 #define ABS(n) (uint8_t)((n) < 0 ? -(n) : (n))
 #define SIGN(n) ((n) < 0 ? -1 : 1)
+#define LIMIT(n, min, max) ((n) < (min) ? (min) : (n) > (max) ? (max) : (n))
 
 // Blocks and CCs
 

@@ -127,7 +127,7 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         axeToggleLooperState(button.value);
         break;
       case BUTTON_TAP_TEMPO:
-        axeSendCC(CC_TEMPO, (uint8_t) CC_MAX_VALUE);
+        axeSendCC(CC_TEMPO, CC_MAX_VALUE);
         break;
       case BUTTON_PAGE:
         page = &pages[button.value];
@@ -157,10 +157,10 @@ void expPedalsCallback(PedalNumber pedalNumber, uint8_t pedalPosition) {
   LOG(SEV_INFO, "Exp pedal %d position change: %d", pedalNumber, pedalPosition);
 
   ExpressionPedal exp = expressionPedals[pedalNumber];
-  int8_t value = 127 * (pedalPosition - exp.calibrationMin) / (exp.calibrationMax - exp.calibrationMin);
-  value = value < CC_MIN_VALUE ? CC_MIN_VALUE : value > CC_MAX_VALUE ? CC_MAX_VALUE : value;
+  pedalPosition = LIMIT(pedalPosition, exp.calibrationMin, exp.calibrationMax);
+  uint8_t value = 127 * (pedalPosition - exp.calibrationMin) / (exp.calibrationMax - exp.calibrationMin);
   if (exp.ccNumber) {
-    axeSendCC(exp.ccNumber, (uint8_t) value);
+    axeSendCC(exp.ccNumber, value);
   }
   if (exp.toggleTunerBelow) {
     axeToggleTuner(value < exp.toggleTunerBelow);
