@@ -25,9 +25,9 @@ typedef enum ButtonType {
 typedef struct Button {
   ButtonType    type;
   uint16_t      value;
-  uint8_t       altValue;
+  uint16_t      altValue;
   LedColor      color;
-  LedColor      availableColor;
+  LedColor      altColor;
   PedalLedColor pedalColor;
 } Button;
 

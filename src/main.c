@@ -14,18 +14,20 @@ bool isMetronomeActive;
 void updateLeds() {
   for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
     bool isActive = false;
-    bool isAvailable = false;
+    bool isAlternated = false;
     Button button = page->buttons[i];
     switch (button.type) {
       case BUTTON_PRESET:
         isActive = button.value == axeGetPresetNumber();
+        isAlternated = button.altValue == axeGetPresetNumber();
         break;
       case BUTTON_SCENE:
         isActive = button.value == axeGetSceneNumber();
+        isAlternated = button.altValue == axeGetSceneNumber();
         break;
       case BUTTON_BLOCK_BYPASS:
         isActive = axeIsBlockActive(button.value);
-        isAvailable = axeIsBlockAvailable(button.value);
+        isAlternated = axeIsBlockAvailable(button.value);
         break;
       case BUTTON_LOOPER:
         isActive = axeIsLooperState(button.value);
@@ -41,7 +43,7 @@ void updateLeds() {
     }
 
     if (i != PEDAL_LED) {
-      LedColor color = isActive ? button.color : isAvailable ? button.availableColor : COLOR_BLACK;
+      LedColor color = isActive ? button.color : isAlternated ? button.altColor : COLOR_BLACK;
       ledSetColor(i, color, false);
     } else {
       PedalLedColor color = isActive ? button.pedalColor : PEDAL_COLOR_NO;
@@ -118,10 +120,10 @@ void buttonsCallback(ButtonEvent buttonEvent) {
     Button button = page->buttons[buttonEvent.buttonNum_];
     switch (button.type) {
       case BUTTON_PRESET:
-        axeSetPresetNumber(button.value);
+        axeSetPresetNumber(axeGetPresetNumber() == button.value ? button.altValue : button.value);
         break;
       case BUTTON_SCENE:
-        axeSetSceneNumber(button.value);
+        axeSetSceneNumber(axeGetSceneNumber() == button.value ? button.altValue : button.value);
         break;
       case BUTTON_BLOCK_BYPASS:
         axeToggleBlock(button.value);
