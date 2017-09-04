@@ -13,7 +13,7 @@ void (*updateCallback)();
 
 char presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
 uint16_t presetNumber = 0xFFFF;
-uint8_t sceneNumber = 0xFF;
+uint8_t sceneNumber;
 AxeFxEffectBlockState blockStates[AXEFX_MAX_BLOCK_ID - AXEFX_MIN_BLOCK_ID];
 AxeFxLooperInfo looperState;
 AxeTunerState tunerState;
@@ -117,7 +117,7 @@ void axeSetPresetNumber(uint16_t number) {
 }
 
 void axeSetSceneNumber(uint8_t number) {
-  axeSendCC(CC_SCENE_SELECT, number);
+  axeSendCC(CC_SCENE_SELECT, number - 1);
 }
 
 void axeToggleBlock(uint8_t blockId) {
@@ -191,7 +191,7 @@ void sysExCallback(uint16_t length) {
       break;
 
     case AXEFX_SET_SCENE_NUMBER:
-      sceneNumber = axefxGetSceneNumber(sysexData);
+      sceneNumber = axefxGetSceneNumber(sysexData) + 1;
       shouldUpdate = true;
       break;
 

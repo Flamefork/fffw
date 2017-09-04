@@ -2,10 +2,10 @@
 
 Button page0[FOOT_BUTTONS_NUM] = {
     // 1 2 3 4
-    {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=0},
     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=1},
     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=2},
     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=3},
+    {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .value=4},
     // 5
     {.type=BUTTON_PAGE, .color=COLOR_GREEN, .value=1, .altValue=2},
     // 6 7 8 9 10
