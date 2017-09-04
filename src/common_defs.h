@@ -58,6 +58,9 @@ typedef struct ButtonPage {
 
 #define AXEFX_TUNER_MAX_ABS_DEVIATION 40
 
+#define AXEFX_MIN_BLOCK_ID 100
+#define AXEFX_MAX_BLOCK_ID 170
+
 #define CC_BANK_CHANGE 0
 #define CC_INPUT_VOLUME 10
 #define CC_OUT_1_VOLUME 11

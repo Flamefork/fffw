@@ -14,7 +14,7 @@ void (*updateCallback)();
 char presetName[TB_LCD_WIDTH + 1] = VERSION_STRING;
 uint16_t presetNumber = 0xFFFF;
 uint8_t sceneNumber = 0xFF;
-AxeFxEffectBlockState blockStates[0xFF];
+AxeFxEffectBlockState blockStates[AXEFX_MAX_BLOCK_ID - AXEFX_MIN_BLOCK_ID];
 AxeFxLooperInfo looperState;
 AxeTunerState tunerState;
 bool isTempoBeat = false;
@@ -67,11 +67,11 @@ uint8_t axeGetSceneNumber() {
 }
 
 bool axeIsBlockActive(uint8_t blockId) {
-  return blockStates[blockId].isEnabled_;
+  return blockStates[blockId - AXEFX_MIN_BLOCK_ID].isEnabled_;
 }
 
 bool axeIsBlockAvailable(uint8_t blockId) {
-  return blockStates[blockId].iaCcNumber_ != 0;
+  return blockStates[blockId - AXEFX_MIN_BLOCK_ID].iaCcNumber_ != 0;
 }
 
 bool axeIsLooperState(uint8_t bit) {
@@ -121,12 +121,12 @@ void axeSetSceneNumber(uint8_t number) {
 }
 
 void axeToggleBlock(uint8_t blockId) {
-  if (!blockStates[blockId].iaCcNumber_) {
+  if (!blockStates[blockId - AXEFX_MIN_BLOCK_ID].iaCcNumber_) {
     LOG(SEV_WARNING, "Unknown CC for block %d", blockId);
     return;
   }
-  uint8_t ccNumber = blockStates[blockId].iaCcNumber_;
-  uint8_t ccValue = blockStates[blockId].isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
+  uint8_t ccNumber = blockStates[blockId - AXEFX_MIN_BLOCK_ID].iaCcNumber_;
+  uint8_t ccValue = blockStates[blockId - AXEFX_MIN_BLOCK_ID].isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
   axeSendCC(ccNumber, ccValue);
 
   axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
@@ -156,7 +156,7 @@ void parseBlockInfo(uint8_t *sysexData) {
   for (uint8_t i = 0; i < totalEffectsInMessage; ++i) {
     AxeFxEffectBlockState state;
     if (axefxGetSingleEffectBlockState(&state, i, sysexData)) {
-      blockStates[state.effectId_] = state;
+      blockStates[state.effectId_ - AXEFX_MIN_BLOCK_ID] = state;
     }
   }
 }
