@@ -6,6 +6,8 @@
 #include "common_defs.h"
 #include "axe_state.h"
 
+#define SPECULATIVE_UPDATES true
+
 // State
 
 bool shouldUpdate;
@@ -114,22 +116,32 @@ void axeSendFX(AxeFxFunctionId functionId) {
 void axeSetPresetNumber(uint16_t number) {
   axeSendCC(CC_BANK_CHANGE, number / 128);
   axeSendPC(number % 128);
+  if (SPECULATIVE_UPDATES) {
+    presetNumber = number;
+  }
 }
 
 void axeSetSceneNumber(uint8_t number) {
   axeSendCC(CC_SCENE_SELECT, number - 1);
+  if (SPECULATIVE_UPDATES) {
+    sceneNumber = number;
+  }
 }
 
 void axeToggleBlock(uint8_t blockId) {
-  if (!blockStates[blockId - AXEFX_MIN_BLOCK_ID].iaCcNumber_) {
+  AxeFxEffectBlockState blockState = blockStates[blockId - AXEFX_MIN_BLOCK_ID];
+  if (!blockState.iaCcNumber_) {
     LOG(SEV_WARNING, "Unknown CC for block %d", blockId);
     return;
   }
-  uint8_t ccNumber = blockStates[blockId - AXEFX_MIN_BLOCK_ID].iaCcNumber_;
-  uint8_t ccValue = blockStates[blockId - AXEFX_MIN_BLOCK_ID].isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
+  uint8_t ccNumber = blockState.iaCcNumber_;
+  uint8_t ccValue = blockState.isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
   axeSendCC(ccNumber, ccValue);
 
   axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
+  if (SPECULATIVE_UPDATES) {
+    blockStates[blockId - AXEFX_MIN_BLOCK_ID].isEnabled_ = !blockState.isEnabled_;
+  }
 }
 
 void axeToggleLooperListener(bool enable) {
@@ -141,6 +153,9 @@ void axeToggleLooperState(uint8_t bit) {
   uint8_t ccNumber = looperCCs[bit];
   uint8_t ccValue = axeIsLooperState(bit) ? CC_MIN_VALUE : CC_MAX_VALUE;
   axeSendCC(ccNumber, ccValue);
+  if (SPECULATIVE_UPDATES) {
+    looperState.status = axeIsLooperState(bit) ? looperState.status - (1 << bit) : looperState.status | (1 << bit);
+  }
 }
 
 void axeToggleTuner(bool enable) {

@@ -137,7 +137,6 @@ void buttonsCallback(ButtonEvent buttonEvent) {
       case BUTTON_PAGE:
         page = &pages[button.value];
         updateLooperListener();
-        updateIndication();
         break;
       default:
         break;
@@ -155,12 +154,13 @@ void buttonsCallback(ButtonEvent buttonEvent) {
       case BUTTON_PAGE:
         page = &pages[button.altValue];
         updateLooperListener();
-        updateIndication();
         break;
       default:
         break;
     }
   }
+
+  updateIndication();
 }
 
 void expPedalsCallback(PedalNumber pedalNumber, uint8_t pedalPosition) {
