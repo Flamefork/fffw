@@ -1,5 +1,9 @@
 #include "common_defs.h"
 
+#define BUTTON_PAGE_PRESETS 0
+#define BUTTON_PAGE_LOOPER 1
+#define BUTTON_PAGE_EFFECTS 2
+
 Button page0[FOOT_BUTTONS_NUM] = {
     // 1 2 3 4
     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=1, .altValue=5},
@@ -7,10 +11,10 @@ Button page0[FOOT_BUTTONS_NUM] = {
     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=3, .altValue=7},
     {.type=BUTTON_SCENE, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=4, .altValue=8},
     // 5
-    {.type=BUTTON_PAGE, .color=COLOR_GREEN, .value=1, .altValue=2},
+    {.type=BUTTON_PAGE, .color=COLOR_GREEN, .value=BUTTON_PAGE_LOOPER, .altValue=BUTTON_PAGE_EFFECTS},
     // 6 7 8 9 10
     {.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=401, .altValue=400},
-    {.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=402},
+    {.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=402, .altValue=409},
     {.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=403, .altValue=412},
     {.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=404, .altValue=410},
     {.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=405, .altValue=419},
@@ -24,7 +28,7 @@ Button page1[FOOT_BUTTONS_NUM] = {
     {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_OVERDUB},
     {.type=BUTTON_TAP_TEMPO, .color=COLOR_GREEN},
     // 5
-    {.type=BUTTON_PAGE, .color=COLOR_YELLOW, .value=0, .altValue=2},
+    {.type=BUTTON_PAGE, .color=COLOR_YELLOW, .value=BUTTON_PAGE_PRESETS, .altValue=BUTTON_PAGE_EFFECTS},
     // 6 7 8 9 10
     {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_UNDO},
     {.type=BUTTON_LOOPER, .color=COLOR_GREEN, .value=AXEFX_LOOPER_BIT_REVERSE},
@@ -42,7 +46,7 @@ Button page2[FOOT_BUTTONS_NUM] = {
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_1},
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_2},
     // 5
-    {.type=BUTTON_PAGE, .color=COLOR_RED, .value=0},
+    {.type=BUTTON_PAGE, .color=COLOR_RED, .value=BUTTON_PAGE_PRESETS},
     // 6 7 8 9 10
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_CHORUS_1},
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_TREMOLO_PANNER_1},
