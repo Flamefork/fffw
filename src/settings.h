@@ -43,22 +43,22 @@ Button page2[FOOT_BUTTONS_NUM] = {
     // 1 2 3 4
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DRIVE_1},
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_1},
-    {.type=BUTTON_BLOCK_XY, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_AMP_1},
-    {.type=BUTTON_BLOCK_XY, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_CAB_1},
+    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_PITCH_1},
+    {.type=BUTTON_TAP_TEMPO, .color=COLOR_GREEN},
     // 5
     {.type=BUTTON_PAGE, .color=COLOR_RED, .value=BUTTON_PAGE_PRESETS},
     // 6 7 8 9 10
+    {.type=BUTTON_BLOCK_XY, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_AMP_1},
+    {.type=BUTTON_BLOCK_XY, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_CAB_1},
+    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_COMPRESSOR_1},
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_CHORUS_1},
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_TREMOLO_PANNER_1},
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_SYNTH_1},
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_PITCH_1},
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_WAH_1},
 
     // P
     {.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_RGB, .value=AXEFX_BLOCK_VOLUME_PAN_1}};
 
 ButtonPage pages[3] = {{.name="PRESET/SCENE    ", .buttons=page0},
-                       {.name="LOOPER          ", .buttons=page1, .looper=true},
+                       {.name="LOOPER          ", .buttons=page1, .showLooperStatus=true},
                        {.name="EFFECTS         ", .buttons=page2}};
 
 ExpressionPedal expressionPedals[EXP_PEDALS_NUM] = {
