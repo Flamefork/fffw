@@ -42,9 +42,9 @@ Button page1[FOOT_BUTTONS_NUM] = {
 Button page2[FOOT_BUTTONS_NUM] = {
     // 1 2 3 4
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DRIVE_1},
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DRIVE_2},
     {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_1},
-    {.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_2},
+    {.type=BUTTON_BLOCK_XY, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_AMP_1},
+    {.type=BUTTON_BLOCK_XY, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_CAB_1},
     // 5
     {.type=BUTTON_PAGE, .color=COLOR_RED, .value=BUTTON_PAGE_PRESETS},
     // 6 7 8 9 10

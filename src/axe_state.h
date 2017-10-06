@@ -15,6 +15,8 @@ uint8_t axeGetSceneNumber();
 
 bool axeIsBlockActive(uint8_t blockId);
 
+bool axeIsBlockOnX(uint8_t blockId);
+
 bool axeIsBlockAvailable(uint8_t blockId);
 
 bool axeIsLooperState(uint8_t bit);
@@ -44,6 +46,8 @@ void axeSetPresetNumber(uint16_t number);
 void axeSetSceneNumber(uint8_t number);
 
 void axeToggleBlock(uint8_t blockId);
+
+void axeToggleBlockXY(uint8_t blockId);
 
 void axeInit(void (*callback)());
 

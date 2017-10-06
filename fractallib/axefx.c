@@ -86,20 +86,20 @@ uint8_t axefxGetEffectBlockStateNumber(uint8_t *sysEx) {
 static void fillEffectBlockStructFromGen2(AxeFxEffectBlockState *structToFill, uint8_t *blockInSysEx) {
   structToFill->isEnabled_  = ((blockInSysEx[0] & 0x01) == 0x00) ? false : true;
   structToFill->isX_        = ((blockInSysEx[0] & 0x02) == 0x00) ? false : true;
-  structToFill->iaCcNumber_ = ((blockInSysEx[1] & 0x7E) >> 1) | ((blockInSysEx[2] & 0x03) << 6);
-  structToFill->effectId_   = ((blockInSysEx[3] & 0x78) >> 3) | ((blockInSysEx[4] & 0x0F) << 4);
+  structToFill->iaBypassCcNumber_ = ((blockInSysEx[1] & 0x7E) >> 1) | ((blockInSysEx[2] & 0x03) << 6);
+  structToFill->iaXYCcNumber_     = ((blockInSysEx[2] & 0x7C) >> 2) | ((blockInSysEx[3] & 0x07) << 5);
+  structToFill->effectId_         = ((blockInSysEx[3] & 0x78) >> 3) | ((blockInSysEx[4] & 0x0F) << 4);
 }
 
 static void fillEffectBlockStructFromGen1(AxeFxEffectBlockState *structToFill, uint8_t *blockInSysEx) {
   structToFill->isEnabled_  = (blockInSysEx[4] == 0x00) ? false : true;
   structToFill->isX_        = false;//always false in gen1
-  structToFill->iaCcNumber_ = blockInSysEx[2] | (blockInSysEx[3] << 4);
+  structToFill->iaBypassCcNumber_ = blockInSysEx[2] | (blockInSysEx[3] << 4);
   structToFill->effectId_   = blockInSysEx[0] | (blockInSysEx[1] << 4);
 }
 
-uint8_t totalBlocks;
 bool axefxGetSingleEffectBlockState(AxeFxEffectBlockState *blockState, uint8_t blockNum, uint8_t *sysEx) {
-  totalBlocks = axefxGetEffectBlockStateNumber(sysEx);
+  uint8_t totalBlocks = axefxGetEffectBlockStateNumber(sysEx);
 
   if (blockNum > totalBlocks) {//wrong block number is requested
     return false;

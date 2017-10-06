@@ -72,8 +72,12 @@ bool axeIsBlockActive(uint8_t blockId) {
   return blockStates[blockId - AXEFX_MIN_BLOCK_ID].isEnabled_;
 }
 
+bool axeIsBlockOnX(uint8_t blockId) {
+  return blockStates[blockId - AXEFX_MIN_BLOCK_ID].isX_;
+}
+
 bool axeIsBlockAvailable(uint8_t blockId) {
-  return blockStates[blockId - AXEFX_MIN_BLOCK_ID].iaCcNumber_ != 0;
+  return blockStates[blockId - AXEFX_MIN_BLOCK_ID].effectId_ != 0;
 }
 
 bool axeIsLooperState(uint8_t bit) {
@@ -130,17 +134,35 @@ void axeSetSceneNumber(uint8_t number) {
 
 void axeToggleBlock(uint8_t blockId) {
   AxeFxEffectBlockState blockState = blockStates[blockId - AXEFX_MIN_BLOCK_ID];
-  if (!blockState.iaCcNumber_) {
-    LOG(SEV_WARNING, "Unknown CC for block %d", blockId);
+  uint8_t ccNumber = blockState.iaBypassCcNumber_;
+  uint8_t ccValue = blockState.isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
+
+  if (!ccNumber || ccNumber > 0x7F) {
+    LOG(SEV_WARNING, "Unknown Bypass CC for block %d", blockId);
     return;
   }
-  uint8_t ccNumber = blockState.iaCcNumber_;
-  uint8_t ccValue = blockState.isEnabled_ ? CC_MIN_VALUE : CC_MAX_VALUE;
   axeSendCC(ccNumber, ccValue);
 
-  axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
+  axeSendFX(AXEFX_PRESET_BLOCKS_DATA);
   if (SPECULATIVE_UPDATES) {
     blockStates[blockId - AXEFX_MIN_BLOCK_ID].isEnabled_ = !blockState.isEnabled_;
+  }
+}
+
+void axeToggleBlockXY(uint8_t blockId) {
+  AxeFxEffectBlockState blockState = blockStates[blockId - AXEFX_MIN_BLOCK_ID];
+  uint8_t ccNumber = blockState.iaXYCcNumber_;
+  uint8_t ccValue = blockState.isX_ ? CC_MIN_VALUE : CC_MAX_VALUE;
+
+  if (!ccNumber || ccNumber > 0x7F) {
+    LOG(SEV_WARNING, "Unknown XY CC for block %d", blockId);
+    return;
+  }
+  axeSendCC(ccNumber, ccValue);
+
+  axeSendFX(AXEFX_PRESET_BLOCKS_DATA);
+  if (SPECULATIVE_UPDATES) {
+    blockStates[blockId - AXEFX_MIN_BLOCK_ID].isX_ = !blockState.isX_;
   }
 }
 
@@ -187,7 +209,7 @@ void sysExCallback(uint16_t length) {
   LOG(SEV_INFO, "GOT FX: %02X", function);
 
   switch (function) {
-    case AXEFX_GET_PRESET_BLOCKS_FLAGS:
+    case AXEFX_PRESET_BLOCKS_DATA:
       parseBlockInfo(sysexData);
       shouldUpdate = true;
       break;
@@ -202,7 +224,7 @@ void sysExCallback(uint16_t length) {
       shouldUpdate = true;
 
       axeSendFX(AXEFX_GET_PRESET_NAME);
-      axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
+      axeSendFX(AXEFX_PRESET_BLOCKS_DATA);
       break;
 
     case AXEFX_SET_SCENE_NUMBER:
@@ -211,7 +233,7 @@ void sysExCallback(uint16_t length) {
       break;
 
     case AXEFX_FRONT_PANEL_CHANGE_DETECTED:
-      axeSendFX(AXEFX_GET_PRESET_BLOCKS_FLAGS);
+      axeSendFX(AXEFX_PRESET_BLOCKS_DATA);
       break;
 
     case AXEFX_TEMPO_BEAT:

@@ -42,9 +42,10 @@ typedef enum AxeFxFunctionId {
   AXEFX_GET_SET_MODIFIER            = 0x07,
   AXEFX_GET_FIRMWARE_VERSION        = 0x08,
   AXEFX_TUNER_INFO                  = 0x0D,
-  AXEFX_GET_PRESET_BLOCKS_FLAGS     = 0x0E,
+  AXEFX_PRESET_BLOCKS_DATA          = 0x0E,
   AXEFX_GET_PRESET_NAME             = 0x0F,
   AXEFX_TEMPO_BEAT                  = 0x10,
+  AXEFX_GET_SET_BLOCK_XY            = 0x11,
   AXEFX_GET_PRESET_NUMBER           = 0x14,
   AXEFX_GET_ROUTING_GRID_LAYOUT     = 0x20,
   AXEFX_FRONT_PANEL_CHANGE_DETECTED = 0x21,
@@ -54,13 +55,14 @@ typedef enum AxeFxFunctionId {
 } AxeFxFunctionId;
 
 /*
- * MIDI_GET_PRESET_EFFECT_BLOCKS_AND_CC_AND_BYPASS_STATE response format
+ * AXEFX_PRESET_BLOCKS_DATA response format
  * response consist of several blocks of following structure
  */
 typedef struct AxeFxEffectBlockState {
   bool    isEnabled_;     //true = Enabled, false = Bypassed
   bool    isX_;           //X/Y state : true = X, false = Y
-  uint8_t iaCcNumber_;    //CC number assigned to this effect
+  uint8_t iaBypassCcNumber_; //Bypass toggle CC number assigned to this effect
+  uint8_t iaXYCcNumber_;  //XY switch CC number assigned to this effect
   uint8_t effectId_;      //Effect ID
 } AxeFxEffectBlockState;
 

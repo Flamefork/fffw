@@ -29,6 +29,10 @@ void updateLeds() {
         isActive = axeIsBlockActive(button.value);
         isAlternated = axeIsBlockAvailable(button.value);
         break;
+      case BUTTON_BLOCK_XY:
+        isActive = axeIsBlockActive(button.value) && axeIsBlockOnX(button.value);
+        isAlternated = axeIsBlockActive(button.value) && !axeIsBlockOnX(button.value);
+        break;
       case BUTTON_LOOPER:
         isActive = axeIsLooperState(button.value);
         break;
@@ -127,6 +131,9 @@ void buttonsCallback(ButtonEvent buttonEvent) {
         break;
       case BUTTON_BLOCK_BYPASS:
         axeToggleBlock(button.value);
+        break;
+      case BUTTON_BLOCK_XY:
+        axeToggleBlockXY(button.value);
         break;
       case BUTTON_LOOPER:
         axeToggleLooperState(button.value);
