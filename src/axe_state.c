@@ -122,6 +122,7 @@ void axeSetPresetNumber(uint16_t number) {
   axeSendPC(number % 128);
   if (SPECULATIVE_UPDATES) {
     presetNumber = number;
+    sceneNumber = 1;
   }
 }
 
