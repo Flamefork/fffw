@@ -22,7 +22,7 @@ Button presetsPage[FOOT_BUTTONS_NUM] = {
 Button effectsPage[FOOT_BUTTONS_NUM] = {
     /* 1 */{.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DRIVE_1},
     /* 2 */{.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_DELAY_1},
-    /* 3 */{.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_PITCH_1},
+    /* 3 */{.type=BUTTON_BLOCK_BYPASS, .color=COLOR_GREEN, .altColor=COLOR_YELLOW, .value=AXEFX_BLOCK_PITCH_1, .momentary=true},
     /* 4 */{.type=BUTTON_TAP_TEMPO, .color=COLOR_GREEN},
     /* 5 */{.type=BUTTON_PAGE, .color=COLOR_RED, .value=BUTTON_PAGE_PRESETS, .altValue=BUTTON_PAGE_LOOPER},
 

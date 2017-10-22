@@ -27,6 +27,7 @@ typedef struct Button {
   ButtonType    type;
   uint16_t      value;
   uint16_t      altValue;
+  bool          momentary;
   LedColor      color;
   LedColor      altColor;
   PedalLedColor pedalColor;

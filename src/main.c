@@ -155,6 +155,19 @@ void buttonsCallback(ButtonEvent buttonEvent) {
     }
   }
 
+  if (buttonEvent.actionType_ == BUTTON_RELEASE && button.momentary) {
+    switch (button.type) {
+      case BUTTON_BLOCK_BYPASS:
+        axeToggleBlock(button.value);
+        break;
+      case BUTTON_BLOCK_XY:
+        axeToggleBlockXY(button.value);
+        break;
+      default:
+        break;
+    }
+  }
+
   if (buttonEvent.actionType_ == BUTTON_RELEASE && buttonEvent.previousActionType_ == BUTTON_PUSH) {
     switch (button.type) {
       case BUTTON_PAGE:
