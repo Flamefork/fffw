@@ -1,8 +1,8 @@
 /*
  * BJ Devices Travel Box series midi controller library
  * @file	button.c
- * 
- * @brief	Process footswitch buttons and configuration keyboard buttons 
+ *
+ * @brief	Process footswitch buttons and configuration keyboard buttons
  *
  * Software is provided "as is" without express or implied warranty.
  * BJ Devices 2016
@@ -41,7 +41,7 @@ const ioPort buttonsArray[FOOT_BUTTONS_NUM + CONF_BUTTONS_NUM] PROGMEM = {
 	{ &KEY_SETUP_PORT, KEY_SETUP_PIN }};
 
 #elif defined TB_5_DEVICE
- 
+
 //port connection is differ on various models
 const ioPort buttonsArray[FOOT_BUTTONS_NUM + CONF_BUTTONS_NUM] PROGMEM = {
 	 { &KEY_1_PORT, KEY_1_PIN },
@@ -92,7 +92,7 @@ const ioPort buttonsArray[FOOT_BUTTONS_NUM + CONF_BUTTONS_NUM] PROGMEM = {
 	{ &KEY_LOAD_PORT, KEY_LOAD_PIN },
 	{ &KEY_SETUP_PORT, KEY_SETUP_PIN }};
 
-#elif defined TB_11P_DEVICE	
+#elif defined TB_11P_DEVICE
 const ioPort buttonsArray[FOOT_BUTTONS_NUM + CONF_BUTTONS_NUM] PROGMEM = {
 	{ &KEY_1_PORT, KEY_1_PIN },
 	{ &KEY_2_PORT, KEY_2_PIN },
@@ -112,7 +112,7 @@ const ioPort buttonsArray[FOOT_BUTTONS_NUM + CONF_BUTTONS_NUM] PROGMEM = {
 	{ &KEY_DOWN_PORT, KEY_DOWN_PIN },
 	{ &KEY_LOAD_PORT, KEY_LOAD_PIN },
 	{ &KEY_SETUP_PORT, KEY_SETUP_PIN }};
-			 
+
 #endif
 
 
@@ -130,13 +130,13 @@ uint8_t getButtonState(uint8_t buttonNum)
     ioPort tmpPort;
 	tmpPort.pin_ = pgm_read_byte(&(buttonsArray[buttonNum].pin_));
 	tmpPort.portReg_ = (volatile uint8_t*)pgm_read_word(&(buttonsArray[buttonNum].portReg_));
-	
+
 	if(inputGet(&tmpPort) == KEY_ACTIVE)
 	{
 		_delay_ms(DEBOUNCE_DELAY_MS);
 			return inputGet(&tmpPort);
 	}
-	
+
 	return !KEY_ACTIVE;
 }
 
@@ -153,9 +153,9 @@ void initButtons()
 	{
 		tmpPort.pin_ = pgm_read_byte(&(buttonsArray[i].pin_));
 		tmpPort.portReg_ = (volatile uint8_t*)pgm_read_word(&(buttonsArray[i].portReg_));
-		
+
 		initInput(&tmpPort, 1);
-		buttonsLastAction[i] = BUTTON_RELEASE; 
+		buttonsLastAction[i] = BUTTON_RELEASE;
 		buttonsLastTime[0] = 0;
 		autorepeatCounter[0] = 0;
 	}
@@ -165,7 +165,7 @@ ButtonActionType getButtonActionType(uint8_t buttonNum)
 {
     uint8_t autorepeatTime = SLOW_AUTO_TIME;
 	uint8_t buttonState = getButtonState(buttonNum);
-    
+
 	switch(buttonsLastAction[buttonNum])
 	{
 		case BUTTON_RELEASE:
@@ -176,14 +176,14 @@ ButtonActionType getButtonActionType(uint8_t buttonNum)
 				return BUTTON_PUSH;
 			}
 			break;
-			
+
 		case BUTTON_PUSH:
 		    if(buttonState != KEY_ACTIVE)
 		    {
 			    buttonsLastAction[buttonNum] = BUTTON_RELEASE;
 			    return BUTTON_RELEASE;
 		    }
-		        
+
 		    //if button hold on
 		    if(getTicks() > (buttonsLastTime[buttonNum] + HOLD_ON_TIME))
 		    {
@@ -192,44 +192,44 @@ ButtonActionType getButtonActionType(uint8_t buttonNum)
 			    return BUTTON_HOLDON;
 		    }
 			break;
-		
+
 		case BUTTON_HOLDON:
 			if(buttonState != KEY_ACTIVE)
 			{
                 buttonsLastAction[buttonNum] = BUTTON_RELEASE;
-                return BUTTON_RELEASE;							
+                return BUTTON_RELEASE;
 			}
-			
+
 			if(getTicks() > (buttonsLastTime[buttonNum] + FIRST_AUTO_TIME))
 			{
 				buttonsLastTime[buttonNum] = getTicks();//renew time
 				buttonsLastAction[buttonNum] = BUTTON_REPAEATED_PUSH;
-				return BUTTON_REPAEATED_PUSH;				
+				return BUTTON_REPAEATED_PUSH;
 			}
 			break;
-		
+
 		case BUTTON_REPAEATED_PUSH:
 			if(autorepeatCounter[buttonNum] < SLOW_AUTOREPEATS)//slow autorepeat
 				autorepeatTime = SLOW_AUTO_TIME;
 			else
 				autorepeatTime = FAST_AUTO_TIME;
-			            
+
 			if(buttonState != KEY_ACTIVE)
 			{
 				buttonsLastAction[buttonNum] = BUTTON_RELEASE;
 				return BUTTON_RELEASE;
 			}
-						
+
 			else if(getTicks() > (buttonsLastTime[buttonNum] + autorepeatTime))
 			{
 				buttonsLastTime[buttonNum] = getTicks();//renew time
 				if(autorepeatCounter[buttonNum] < SLOW_AUTOREPEATS)
 					autorepeatCounter[buttonNum] += 1;
-					
+
 				return BUTTON_REPAEATED_PUSH;
 			}
 			break;
-			
+
 		default: break;
 	}
 	return BUTTON_NO_EVENT;
@@ -245,6 +245,7 @@ ButtonEvent getButtonLastEvent()
 
     for(i = 0; i < FOOT_BUTTONS_NUM + CONF_BUTTONS_NUM; ++i)
     {
+	    buttonEvent.previousActionType_ = buttonsLastAction[i];
 	    buttonEvent.actionType_ = getButtonActionType(i);
 	    if(buttonEvent.actionType_ != BUTTON_NO_EVENT)
 	    {
@@ -252,5 +253,5 @@ ButtonEvent getButtonLastEvent()
 		    break;
 	    }
     }
-    return  buttonEvent;	
+    return  buttonEvent;
 }

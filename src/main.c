@@ -127,8 +127,9 @@ void buttonsCallback(ButtonEvent buttonEvent) {
   }
   LOG(SEV_INFO, "Button %d event: %d", buttonEvent.buttonNum_, buttonEvent.actionType_);
 
+  Button button = page->buttons[buttonEvent.buttonNum_];
+
   if (buttonEvent.actionType_ == BUTTON_PUSH) {
-    Button button = page->buttons[buttonEvent.buttonNum_];
     switch (button.type) {
       case BUTTON_PRESET:
         axeSetPresetNumber(axeGetPresetNumber() == button.value ? button.altValue : button.value);
@@ -148,6 +149,13 @@ void buttonsCallback(ButtonEvent buttonEvent) {
       case BUTTON_TAP_TEMPO:
         axeSendCC(CC_TEMPO, CC_MAX_VALUE);
         break;
+      default:
+        break;
+    }
+  }
+
+  if (buttonEvent.actionType_ == BUTTON_RELEASE && buttonEvent.previousActionType_ == BUTTON_PUSH) {
+    switch (button.type) {
       case BUTTON_PAGE:
         page = &pages[button.value];
         updateLooperListener();
@@ -158,7 +166,6 @@ void buttonsCallback(ButtonEvent buttonEvent) {
   }
 
   if (buttonEvent.actionType_ == BUTTON_HOLDON) {
-    Button button = page->buttons[buttonEvent.buttonNum_];
     switch (button.type) {
       case BUTTON_TAP_TEMPO:
         isMetronomeActive = !isMetronomeActive;
