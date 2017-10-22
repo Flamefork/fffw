@@ -94,10 +94,10 @@ void updateScreen() {
     LCDWriteIntXY(TB_LCD_WIDTH - 1, 0, tunerState->stringNumber, 1);
   }
 
-  if (page->showLooperStatus && !axeIsBlockAvailable(AXEFX_BLOCK_LOOPER)) {
-    LCDWriteStringXY(7, 0, "NOT FOUND");
+  if (hasLooperButtons && !axeIsBlockAvailable(AXEFX_BLOCK_LOOPER)) {
+    LCDWriteStringXY(0, 0, "LOOPER NOT FOUND");
   }
-  if (page->showLooperStatus && axeIsLooperState(AXEFX_LOOPER_BIT_PLAY)) {
+  if (hasLooperButtons && axeIsLooperState(AXEFX_LOOPER_BIT_PLAY)) {
     uint8_t position = 7 + 9 * axeGetLooperPosition() / 100;
     char *marker = axeIsLooperState(AXEFX_LOOPER_BIT_REVERSE) ? "<" : ">";
     LCDWriteStringXY(position, 0, marker);
@@ -110,6 +110,7 @@ void updateIndication() {
 }
 
 void updateLooperListener() {
+  hasLooperButtons = false;
   for (uint8_t i = 0; i < FOOT_BUTTONS_NUM; i++) {
     if (page->buttons[i].type == BUTTON_LOOPER) {
       hasLooperButtons = true;

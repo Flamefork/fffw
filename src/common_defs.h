@@ -42,7 +42,6 @@ typedef struct ExpressionPedal {
 typedef struct ButtonPage {
   char   name[TB_LCD_WIDTH + 1];
   Button *buttons;
-  bool showLooperStatus;
 } ButtonPage;
 
 // Macros
