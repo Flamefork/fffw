@@ -1,6 +1,11 @@
 # Flamefork firmware for BJ Devices TB-11P aimed for Fractal Axe-Fx II
 
-### Modify
+### Disclaimer
+
+I haven't used C since university, and haven't coded for microcontrollers ever.
+Read: the code might be really bad. 
+
+### Tweak
 
 Check out `src/settings.h` for actual settings and `src/common_defs.h` for constants.
 
