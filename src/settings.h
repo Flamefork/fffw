@@ -12,10 +12,10 @@ Button presetsPage[FOOT_BUTTONS_NUM] = {
     /* 5 */{.type=BUTTON_PAGE, .color=COLOR_GREEN, .value=BUTTON_PAGE_EFFECTS, .altValue=BUTTON_PAGE_LOOPER},
 
     /* 6 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=401, .altValue=400},
-    /* 7 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=402, .altValue=409},
-    /* 8 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=403, .altValue=412},
-    /* 9 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=404, .altValue=410},
-    /*10 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=405, .altValue=419},
+    /* 7 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=403, .altValue=402},
+    /* 8 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=405, .altValue=404},
+    /* 9 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=407, .altValue=406},
+    /*10 */{.type=BUTTON_PRESET, .color=COLOR_YELLOW, .altColor=COLOR_RED, .value=409, .altValue=408},
 
     /* P */{.type=BUTTON_BLOCK_BYPASS, .pedalColor=PEDAL_COLOR_RGB, .value=AXEFX_BLOCK_VOLUME_PAN_1}};
 
